@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPI - Painel de Monitoramento</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">GPI</div>
+      <nav class="menu">
+        <a class="menu-item active" href="#" data-view-target="visao-geral">Visao Geral</a>
+        <a class="menu-item" href="#" data-view-target="config-iot">Configuracoes IoT</a>
+        
+        <a class="menu-item" href="#">Relatorios</a>
+      </nav>
+      <div class="hub-card">
+        <strong>Hub Central</strong>
+        <p>Sistema IoT online. <span id="hub-total">0</span> sensores ativos.</p>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <h1 id="page-title">Painel de Monitoramento</h1>
+        <div class="header-actions">
+          <button id="btn-simular" type="button" data-view-only="visao-geral">Atualizar leituras</button>
+        </div>
+      </header>
+
+      <section id="view-visao-geral" class="view">
+        <section class="kpis">
+          <article class="kpi-card">
+            <small>Total Monitorado</small>
+            <strong id="kpi-total">0 secoes</strong>
+            <p>Cobertura ativa na loja</p>
+          </article>
+          <article class="kpi-card">
+            <small>Nivel Adequado</small>
+            <strong id="kpi-normal">0</strong>
+            <p>Acima de 50% de capacidade</p>
+          </article>
+          <article class="kpi-card">
+            <small>Atencao (Baixo Estoque)</small>
+            <strong id="kpi-atencao">0</strong>
+            <p>Entre 15% e 50% de capacidade</p>
+          </article>
+          <article class="kpi-card danger">
+            <small>Alerta (Vazio)</small>
+            <strong id="kpi-vazio">0</strong>
+            <p>Abaixo de 15% - Requer reposicao</p>
+          </article>
+        </section>
+
+        <section class="main-grid">
+          <div class="left-panel card">
+            <div class="section-title">
+              <h2>Status em Tempo Real (Visao Corredor)</h2>
+              <div class="legend">
+                <span class="dot normal"></span>Normal
+                <span class="dot atencao"></span>Atencao
+                <span class="dot vazio"></span>Vazio
+              </div>
+            </div>
+            <div id="lista-prateleiras" class="shelf-grid"></div>
+          </div>
+
+          <div class="right-panel">
+            <section class="card">
+              <h2>Alertas Recentes</h2>
+              <div id="lista-alertas" class="alerts"></div>
+            </section>
+
+            <section class="card">
+              <h2>Nova Secao</h2>
+              <form id="form-prateleira" class="form">
+                <input id="nome" type="text" placeholder="Ex: Bebidas - Sucos" required />
+                <input id="corredor" type="text" placeholder="Ex: Corredor A1" required />
+                <input id="distancia" type="number" min="0" step="0.1" placeholder="Distancia sensor (cm)" required />
+                <input id="maximo" type="number" min="1" step="0.1" value="120" placeholder="Distancia maximo vazio (cm)" required />
+                <button type="submit">Adicionar secao</button>
+              </form>
+            </section>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-config-iot" class="view hidden">
+        <section class="card">
+          <h2>Cadastrar Novo Dispositivo</h2>
+          <form id="form-sensor" class="sensor-form">
+            <div class="form-col">
+              <label>Nome do Sensor *</label>
+              <input id="sensor-nome" type="text" placeholder="Ex: Sensor Bebidas Frias" required />
+
+              <label>ID do Sensor (NodeMCU/ESP32) *</label>
+              <input id="sensor-id" type="text" placeholder="Ex: US-1023" required />
+
+              <label>MAC Address (Opcional)</label>
+              <input id="sensor-mac" type="text" placeholder="00:1B:44:11:3A:B7" />
+            </div>
+
+            <div class="form-col">
+              <label>Corredor *</label>
+              <input id="sensor-corredor" type="text" placeholder="Ex: A3" required />
+
+              <label>Lado do Corredor *</label>
+              <select id="sensor-lado" required>
+                <option value="A">Lado A (Esquerda)</option>
+                <option value="B">Lado B (Direita)</option>
+              </select>
+
+              <label>Categoria / Produto Base *</label>
+              <input id="sensor-categoria" type="text" placeholder="Ex: Biscoitos Recheados" required />
+            </div>
+
+            <div class="sensor-actions">
+              <button type="submit">Salvar Dispositivo</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card sensor-list-card">
+          <h2>Sensores Cadastrados</h2>
+          <div class="sensor-table-wrap">
+            <table class="sensor-table">
+              <thead>
+                <tr>
+                  <th>Nome e ID do Sensor</th>
+                  <th>Posicao</th>
+                  <th>Categoria Mapeada</th>
+                  <th>Status</th>
+                  <th>Acoes</th>
+                </tr>
+              </thead>
+              <tbody id="sensor-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <template id="template-sensor-row">
+    <tr>
+      <td>
+        <strong class="sensor-row-nome"></strong>
+        <small class="sensor-row-id"></small>
+      </td>
+      <td>
+        <span class="sensor-row-corredor"></span>
+        <small class="sensor-row-lado"></small>
+      </td>
+      <td class="sensor-row-categoria"></td>
+      <td><span class="sensor-status online">Online</span></td>
+      <td><button class="btn-remover-sensor" type="button">Remover</button></td>
+    </tr>
+  </template>
+
+  <template id="template-item">
+    <article class="shelf-item">
+      <div class="shelf-top">
+        <small class="shelf-corredor"></small>
+        <strong class="shelf-percentual"></strong>
+      </div>
+      <h3 class="shelf-nome"></h3>
+      <p class="shelf-distancia"></p>
+      <div class="progress">
+        <div class="progress-bar"></div>
+      </div>
+      <div class="shelf-bottom">
+        <small class="shelf-updated"></small>
+        <button class="btn-remover" type="button">Remover</button>
+      </div>
+    </article>
+  </template>
+
+  <template id="template-alerta">
+    <article class="alert-item">
+      <strong class="alert-title"></strong>
+      <p class="alert-time"></p>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
