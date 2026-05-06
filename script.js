@@ -1,11 +1,18 @@
+// Chaves usadas para salvar e recuperar dados do localStorage.
+// O primeiro grupo armazena as prateleiras/áreas monitoradas,
+// o segundo armazena os sensores cadastrados.
 const STORAGE_KEY = "prateleiras-iot-v2";
 const SENSOR_STORAGE_KEY = "sensores-iot-v1";
+
+// Elementos principais do DOM para renderizar a visão geral,
+// alertas, cards de prateleira e o botão de simulação.
 const listaEl = document.getElementById("lista-prateleiras");
 const alertasEl = document.getElementById("lista-alertas");
 const templateEl = document.getElementById("template-item");
 const templateAlertaEl = document.getElementById("template-alerta");
 const btnSimular = document.getElementById("btn-simular");
 
+// KPIs e elementos de controle de navegação entre as views.
 const kpiTotal = document.getElementById("kpi-total");
 const kpiCheio = document.getElementById("kpi-cheio");
 const kpiVazio = document.getElementById("kpi-vazio");
@@ -19,6 +26,7 @@ const views = {
 };
 const viewOnlyElements = Array.from(document.querySelectorAll("[data-view-only]"));
 
+// Elementos da tela de configuração de sensores e do painel de relatórios.
 const sensorFormEl = document.getElementById("form-sensor");
 const sensorTableBodyEl = document.getElementById("sensor-table-body");
 const sensorTemplateEl = document.getElementById("template-sensor-row");
@@ -42,6 +50,7 @@ const reportRankingEl = document.getElementById("report-ranking");
 const reportInsightsEl = document.getElementById("report-insights");
 const reportJsonOutputEl = document.getElementById("report-json-output");
 
+// Dados iniciais exibidos quando o sistema não encontra nada salvo no localStorage.
 const dadosIniciais = [
   { id: crypto.randomUUID(), corredor: "Corredor A1", nome: "Bebidas - Refrigerantes", distancia: 24, maximo: 120, atualizadoEm: new Date().toISOString() },
   { id: crypto.randomUUID(), corredor: "Corredor A1", nome: "Bebidas - Sucos", distancia: 77, maximo: 120, atualizadoEm: new Date().toISOString() },
@@ -49,11 +58,14 @@ const dadosIniciais = [
   { id: crypto.randomUUID(), corredor: "Corredor A2", nome: "Limpeza - Amaciante", distancia: 117, maximo: 120, atualizadoEm: new Date().toISOString() }
 ];
 
+// Estado global do aplicativo.
 let prateleiras = carregar();
 let sensores = carregarSensores();
 let sensorEmEdicaoId = null;
 let reportPeriodoAtual = "diario";
 
+// Carrega as prateleiras do localStorage.
+// Se não houver dados salvos, usa os dados iniciais definidos acima.
 function carregar() {
   const bruto = localStorage.getItem(STORAGE_KEY);
   if (!bruto) return dadosIniciais;
@@ -65,10 +77,13 @@ function carregar() {
   }
 }
 
+// Salva a lista atual de prateleiras no localStorage.
 function salvar() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(prateleiras));
 }
 
+// Carrega os sensores do localStorage.
+// Se não houver sensores salvos, usa um conjunto de sensores padrão.
 function carregarSensores() {
   const bruto = localStorage.getItem(SENSOR_STORAGE_KEY);
   if (!bruto) {
@@ -108,15 +123,18 @@ function carregarSensores() {
   }
 }
 
+// Salva a lista atual de sensores no localStorage.
 function salvarSensores() {
   localStorage.setItem(SENSOR_STORAGE_KEY, JSON.stringify(sensores));
 }
 
+// Normaliza o texto do corredor para sempre armazenar no formato "Corredor X".
 function normalizarCorredor(valor) {
   const base = valor.replace(/^corredor\s*/i, "").trim().toUpperCase();
   return `Corredor ${base}`;
 }
 
+// Preenche o formulário de edição com os dados do sensor selecionado.
 function preencherFormularioSensor(sensor) {
   document.getElementById("sensor-nome").value = sensor.nome;
   document.getElementById("sensor-id").value = sensor.sensorId;
@@ -126,6 +144,7 @@ function preencherFormularioSensor(sensor) {
   document.getElementById("sensor-categoria").value = sensor.categoria;
 }
 
+// Limpa o modo de edição de sensor e restaura o formulário para cadastro normal.
 function limparModoEdicaoSensor() {
   sensorEmEdicaoId = null;
   sensorSubmitButtonEl.textContent = "Salvar Dispositivo";
@@ -134,6 +153,8 @@ function limparModoEdicaoSensor() {
   document.getElementById("sensor-lado").value = "A";
 }
 
+// Mostra um modal de confirmação para ações sensíveis, como remoção.
+// Retorna uma Promise que resolve com true ou false dependendo da escolha do usuário.
 function confirmarAcao(mensagem) {
   return new Promise((resolve) => {
     confirmModalMessageEl.textContent = mensagem;
@@ -161,6 +182,8 @@ function confirmarAcao(mensagem) {
   });
 }
 
+// Gera um hash numérico simples a partir de texto.
+// Usado para produzir históricos pseudo-aleatórios consistentes para cada prateleira.
 function hashTexto(texto) {
   let hash = 0;
   for (let i = 0; i < texto.length; i += 1) {
@@ -169,17 +192,21 @@ function hashTexto(texto) {
   return hash;
 }
 
+// Função pseudo-aleatória determinística baseada em semente.
+// Não é segura, mas é suficiente para gerar padrões de vazios no relatório.
 function pseudoRandom(seed) {
   const valor = Math.sin(seed) * 10000;
   return valor - Math.floor(valor);
 }
 
+// Converte o período selecionado em quantidade de dias.
 function obterDiasPorPeriodo(periodo) {
   if (periodo === "diario") return 1;
   if (periodo === "semanal") return 7;
   return 30;
 }
 
+// Formata minutos em uma string legível como "1h 20m" ou "30m".
 function formatarDuracaoMinutos(min) {
   if (!Number.isFinite(min) || min <= 0) return "0m";
   const horas = Math.floor(min / 60);
@@ -188,6 +215,9 @@ function formatarDuracaoMinutos(min) {
   return `${horas}h ${minutos}m`;
 }
 
+// Produz um histórico de leituras para uma prateleira ao longo de X dias.
+// A função usa um hash determinístico para que o mesmo sensor gere padrões
+// consistentes, mas ainda pareça variar ao longo do tempo.
 function gerarHistoricoPrateleira(prateleira, dias) {
   const base = hashTexto(`${prateleira.id}-${prateleira.nome}`);
   const historico = [];
@@ -215,6 +245,9 @@ function gerarHistoricoPrateleira(prateleira, dias) {
   return historico;
 }
 
+// Calcula todas as métricas de uma prateleira a partir do histórico.
+// Isso inclui quantidade de leituras, ocorrências de vazio, total de minutos vazios,
+// tempo médio de cada ocorrência e intervalo médio entre reposições.
 function calcularMetricasPrateleira(prateleira, historico) {
   const leiturasVazias = historico.filter((h) => h.vazio);
   let ocorrencias = 0;
@@ -262,11 +295,12 @@ function calcularMetricasPrateleira(prateleira, historico) {
   };
 }
 
+// Renderiza todo o painel de relatórios, incluindo filtros, gráficos e métricas.
 function renderizarRelatorios() {
   reportSensorSelectEl.innerHTML = "";
   const todasOption = document.createElement("option");
   todasOption.value = "__all__";
-  todasOption.textContent = "Todas as prateleiras";
+  todasOption.textContent = "Todos os sensores";
   reportSensorSelectEl.appendChild(todasOption);
 
   if (!prateleiras.length) {
@@ -284,23 +318,24 @@ function renderizarRelatorios() {
     return;
   }
 
-  prateleiras.forEach((sensor) => {
+  sensores.forEach((sensor) => {
     const option = document.createElement("option");
     option.value = sensor.id;
     option.textContent = `${sensor.nome} (${sensor.corredor})`;
     reportSensorSelectEl.appendChild(option);
   });
 
-  if (!prateleiras.some((sensor) => sensor.id === reportSensorSelectEl.value) && reportSensorSelectEl.value !== "__all__") {
+  if (!sensores.some((sensor) => sensor.id === reportSensorSelectEl.value) && reportSensorSelectEl.value !== "__all__") {
     reportSensorSelectEl.value = "__all__";
   }
 
   const periodo = reportPeriodoAtual;
   const dias = obterDiasPorPeriodo(periodo);
   const selectedId = reportSensorSelectEl.value;
+  const selectedSensor = sensores.find((sensor) => sensor.id === selectedId);
   const alvo = selectedId === "__all__"
     ? prateleiras
-    : prateleiras.filter((p) => p.id === selectedId);
+    : prateleiras.filter((p) => p.nome === selectedSensor?.categoria && p.corredor === selectedSensor?.corredor);
 
   const historicoTotal = [];
   const metricasPorPrateleira = alvo.map((prateleira) => {
@@ -454,6 +489,7 @@ function renderizarRelatorios() {
   reportJsonOutputEl.textContent = JSON.stringify(saidaEstruturada, null, 2);
 }
 
+// Calcula o percentual de preenchimento da prateleira baseado na distância medida.
 function getPercentual(item) {
   const maximo = Number(item.maximo);
   if (maximo <= 0) return 0;
@@ -461,22 +497,26 @@ function getPercentual(item) {
   return Math.max(0, Math.min(100, Math.round(preenchimento)));
 }
 
+// Retorna o estado textual da prateleira conforme o percentual calculado.
 function getStatus(percentual) {
   if (percentual < 15) return "vazio";
   return "cheio";
 }
 
+// Retorna a label amigável usada nos alertas.
 function labelStatus(status) {
   if (status === "vazio") return "Vazio";
   return "Cheio";
 }
 
+// Converte um timestamp ISO em um texto simples de tempo relativo.
 function tempoRelativo(iso) {
   const diffMin = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
   if (diffMin <= 1) return "Ha 1 min";
   return `Ha ${diffMin} min`;
 }
 
+// Atualiza os KPIs do dashboard com base no estado atual das prateleiras.
 function atualizarKpis() {
   const totais = prateleiras.reduce((acc, item) => {
     const status = getStatus(getPercentual(item));
@@ -491,6 +531,7 @@ function atualizarKpis() {
   hubTotal.textContent = String(total);
 }
 
+// Renderiza a lista de prateleiras/áreas monitoradas na visão geral.
 function renderizarPrateleiras() {
   listaEl.innerHTML = "";
   if (!prateleiras.length) {
@@ -505,18 +546,13 @@ function renderizarPrateleiras() {
 
     const card = clone.querySelector(".shelf-item");
     const corredor = clone.querySelector(".shelf-corredor");
-    const percentualEl = clone.querySelector(".shelf-percentual");
     const nome = clone.querySelector(".shelf-nome");
-    const progressBar = clone.querySelector(".progress-bar");
     const updated = clone.querySelector(".shelf-updated");
     const btnRemover = clone.querySelector(".btn-remover");
 
     card.classList.add(`status-${status}`);
     corredor.textContent = item.corredor.toUpperCase();
-    percentualEl.textContent = `${percentual}%`;
     nome.textContent = item.nome;
-    progressBar.style.width = `${percentual}%`;
-    progressBar.classList.add(`status-${status}`);
     updated.textContent = `Atualizado: ${tempoRelativo(item.atualizadoEm)}`;
 
     btnRemover.addEventListener("click", async () => {
@@ -531,6 +567,7 @@ function renderizarPrateleiras() {
   });
 }
 
+// Mostra os alertas de prateleiras vazias com prioridade de reposição.
 function renderizarAlertas() {
   alertasEl.innerHTML = "";
   const itensComStatus = prateleiras
@@ -559,6 +596,7 @@ function renderizarAlertas() {
   });
 }
 
+// Função principal que re-renderiza todas as partes da interface.
 function renderizar() {
   atualizarKpis();
   renderizarPrateleiras();
@@ -567,6 +605,7 @@ function renderizar() {
   renderizarRelatorios();
 }
 
+// Alterna entre as views do aplicativo: visão geral, configuração e relatórios.
 function setView(viewName) {
   Object.entries(views).forEach(([name, element]) => {
     element.classList.toggle("hidden", name !== viewName);
@@ -591,6 +630,7 @@ function setView(viewName) {
   pageTitle.textContent = "Painel de Monitoramento";
 }
 
+// Renderiza a tabela de sensores cadastrados na view de configuração.
 function renderizarSensores() {
   sensorTableBodyEl.innerHTML = "";
 
@@ -632,6 +672,7 @@ function renderizarSensores() {
   });
 }
 
+// Evento do botão de simulação: altera valores de distância para testar o painel.
 btnSimular.addEventListener("click", () => {
   prateleiras = prateleiras.map((item) => {
     const variacao = (Math.random() * 14 - 7);
@@ -647,6 +688,7 @@ btnSimular.addEventListener("click", () => {
   renderizar();
 });
 
+// Navegação do menu lateral: troca entre as views sem recarregar a página.
 menuItems.forEach((item) => {
   item.addEventListener("click", (event) => {
     event.preventDefault();
@@ -654,6 +696,7 @@ menuItems.forEach((item) => {
   });
 });
 
+// Salva ou atualiza um sensor quando o formulário de configuração é enviado.
 sensorFormEl.addEventListener("submit", (event) => {
   event.preventDefault();
 
@@ -702,10 +745,12 @@ btnCancelarEdicaoSensorEl.addEventListener("click", () => {
   limparModoEdicaoSensor();
 });
 
+// Atualiza o relatório quando o filtro de sensor muda.
 reportSensorSelectEl.addEventListener("change", () => {
   renderizarRelatorios();
 });
 
+// Atualiza o relatório quando o período diário/semanal/mensal é alterado.
 reportPeriodButtons.forEach((button) => {
   button.addEventListener("click", () => {
     reportPeriodoAtual = button.dataset.period;

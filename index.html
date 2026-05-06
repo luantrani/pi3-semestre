@@ -131,9 +131,9 @@
           </p>
           <div class="report-filter">
             <div>
-              <label for="report-sensor-select">Prateleira</label>
+              <label for="report-sensor-select">Sensor</label>
               <select id="report-sensor-select">
-                <option value="__all__">Todas as prateleiras</option>
+                <option value="__all__">Todos os sensores</option>
               </select>
             </div>
             <div>
@@ -192,7 +192,7 @@
           </article>
         </section>
 
-        <section class="card">
+        <section class="card" style="display:none;">
           <h2>Saida estruturada para dashboard (JSON)</h2>
           <pre id="report-json-output" class="report-json"></pre>
         </section>
@@ -223,12 +223,8 @@
     <article class="shelf-item">
       <div class="shelf-top">
         <small class="shelf-corredor"></small>
-        <strong class="shelf-percentual"></strong>
       </div>
       <h3 class="shelf-nome"></h3>
-      <div class="progress">
-        <div class="progress-bar"></div>
-      </div>
       <div class="shelf-bottom">
         <small class="shelf-updated"></small>
         <button class="btn-remover" type="button">Remover</button>

@@ -252,36 +252,6 @@ button {
   margin: 8px 0;
 }
 
-.progress {
-  height: 9px;
-  background: #eceff6;
-  border-radius: 999px;
-  overflow: hidden;
-  margin: 10px 0 12px;
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0;
-  border-radius: inherit;
-}
-
-.progress-bar.status-normal {
-  background: var(--normal);
-}
-
-.progress-bar.status-cheio {
-  background: var(--normal);
-}
-
-.progress-bar.status-atencao {
-  background: var(--atencao);
-}
-
-.progress-bar.status-vazio {
-  background: var(--vazio);
-}
-
 .btn-remover {
   padding: 7px 10px;
   border-radius: 7px;
