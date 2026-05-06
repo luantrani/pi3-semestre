@@ -13,8 +13,7 @@
       <nav class="menu">
         <a class="menu-item active" href="#" data-view-target="visao-geral">Visao Geral</a>
         <a class="menu-item" href="#" data-view-target="config-iot">Configuracoes IoT</a>
-        
-        <a class="menu-item" href="#">Relatorios</a>
+        <a class="menu-item" href="#" data-view-target="relatorios">Relatorios</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>
@@ -38,19 +37,14 @@
             <p>Cobertura ativa na loja</p>
           </article>
           <article class="kpi-card">
-            <small>Nivel Adequado</small>
-            <strong id="kpi-normal">0</strong>
-            <p>Acima de 50% de capacidade</p>
-          </article>
-          <article class="kpi-card">
-            <small>Atencao (Baixo Estoque)</small>
-            <strong id="kpi-atencao">0</strong>
-            <p>Entre 15% e 50% de capacidade</p>
+            <small>Cheio</small>
+            <strong id="kpi-cheio">0</strong>
+            <p>Secoes com estoque disponivel</p>
           </article>
           <article class="kpi-card danger">
-            <small>Alerta (Vazio)</small>
+            <small>Vazio</small>
             <strong id="kpi-vazio">0</strong>
-            <p>Abaixo de 15% - Requer reposicao</p>
+            <p>Secoes que precisam de reposicao</p>
           </article>
         </section>
 
@@ -59,8 +53,7 @@
             <div class="section-title">
               <h2>Status em Tempo Real (Visao Corredor)</h2>
               <div class="legend">
-                <span class="dot normal"></span>Normal
-                <span class="dot atencao"></span>Atencao
+                <span class="dot cheio"></span>Cheio
                 <span class="dot vazio"></span>Vazio
               </div>
             </div>
@@ -71,17 +64,6 @@
             <section class="card">
               <h2>Alertas Recentes</h2>
               <div id="lista-alertas" class="alerts"></div>
-            </section>
-
-            <section class="card">
-              <h2>Nova Secao</h2>
-              <form id="form-prateleira" class="form">
-                <input id="nome" type="text" placeholder="Ex: Bebidas - Sucos" required />
-                <input id="corredor" type="text" placeholder="Ex: Corredor A1" required />
-                <input id="distancia" type="number" min="0" step="0.1" placeholder="Distancia sensor (cm)" required />
-                <input id="maximo" type="number" min="1" step="0.1" value="120" placeholder="Distancia maximo vazio (cm)" required />
-                <button type="submit">Adicionar secao</button>
-              </form>
             </section>
           </div>
         </section>
@@ -117,6 +99,7 @@
             </div>
 
             <div class="sensor-actions">
+              <button id="btn-cancelar-edicao-sensor" type="button" class="btn-cancelar-edicao hidden">Cancelar edicao</button>
               <button type="submit">Salvar Dispositivo</button>
             </div>
           </form>
@@ -140,6 +123,80 @@
           </div>
         </section>
       </section>
+
+      <section id="view-relatorios" class="view hidden">
+        <section class="card">
+          <p class="report-intro">
+            Este painel mostra quando o sensor fica <strong>Vazio</strong>, quantas vezes isso acontece e em quais horarios a reposicao deve ser priorizada.
+          </p>
+          <div class="report-filter">
+            <div>
+              <label for="report-sensor-select">Prateleira</label>
+              <select id="report-sensor-select">
+                <option value="__all__">Todas as prateleiras</option>
+              </select>
+            </div>
+            <div>
+              <label>Tipo de relatorio</label>
+              <div class="period-toggle">
+                <button id="btn-report-diario" type="button" class="period-btn active" data-period="diario">Diario</button>
+                <button id="btn-report-semanal" type="button" class="period-btn" data-period="semanal">Semanal</button>
+                <button id="btn-report-mensal" type="button" class="period-btn" data-period="mensal">Mensal</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="kpis report-kpis">
+          <article class="kpi-card">
+            <small>Leituras analisadas</small>
+            <strong id="report-total-leituras">0</strong>
+            <p>Total de verificacoes no periodo selecionado</p>
+          </article>
+          <article class="kpi-card danger">
+            <small>Ocorrencias de vazio</small>
+            <strong id="report-total-vazio">0</strong>
+            <p id="report-taxa-vazio">Representa 0% das leituras</p>
+          </article>
+          <article class="kpi-card">
+            <small>Tempo total vazio</small>
+            <strong id="report-horario-critico">--:--</strong>
+            <p id="report-tempo-medio-vazio">Tempo medio por ocorrencia: --</p>
+          </article>
+        </section>
+
+        <section class="card report-insights-card">
+          <h2>Leitura Rapida (Insights)</h2>
+          <ul id="report-insights" class="report-insights"></ul>
+        </section>
+
+        <section class="card report-grid">
+          <article>
+            <h2>Em quais horarios o sensor fica vazio</h2>
+            <div id="report-hourly-chart" class="hourly-chart"></div>
+          </article>
+          <article>
+            <h2>Dias da semana mais criticos</h2>
+            <div id="report-weekday-chart" class="hourly-chart"></div>
+          </article>
+        </section>
+
+        <section class="card report-grid">
+          <article>
+            <h2>Resumo por periodo</h2>
+            <div id="report-daily-list" class="report-daily-list"></div>
+          </article>
+          <article>
+            <h2>Ranking de prateleiras criticas</h2>
+            <div id="report-ranking" class="report-daily-list"></div>
+          </article>
+        </section>
+
+        <section class="card">
+          <h2>Saida estruturada para dashboard (JSON)</h2>
+          <pre id="report-json-output" class="report-json"></pre>
+        </section>
+      </section>
     </main>
   </div>
 
@@ -155,7 +212,10 @@
       </td>
       <td class="sensor-row-categoria"></td>
       <td><span class="sensor-status online">Online</span></td>
-      <td><button class="btn-remover-sensor" type="button">Remover</button></td>
+      <td>
+        <button class="btn-editar-sensor" type="button">Editar</button>
+        <button class="btn-remover-sensor" type="button">Remover</button>
+      </td>
     </tr>
   </template>
 
@@ -166,7 +226,6 @@
         <strong class="shelf-percentual"></strong>
       </div>
       <h3 class="shelf-nome"></h3>
-      <p class="shelf-distancia"></p>
       <div class="progress">
         <div class="progress-bar"></div>
       </div>
@@ -183,6 +242,17 @@
       <p class="alert-time"></p>
     </article>
   </template>
+
+  <div id="confirm-modal" class="confirm-modal hidden" aria-hidden="true">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+      <h3 id="confirm-modal-title">Confirmar acao</h3>
+      <p id="confirm-modal-message"></p>
+      <div class="confirm-actions">
+        <button id="confirm-modal-cancel" type="button" class="btn-cancelar-edicao">Cancelar</button>
+        <button id="confirm-modal-ok" type="button" class="btn-remover-sensor">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

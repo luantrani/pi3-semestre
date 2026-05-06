@@ -2,27 +2,45 @@ const STORAGE_KEY = "prateleiras-iot-v2";
 const SENSOR_STORAGE_KEY = "sensores-iot-v1";
 const listaEl = document.getElementById("lista-prateleiras");
 const alertasEl = document.getElementById("lista-alertas");
-const formEl = document.getElementById("form-prateleira");
 const templateEl = document.getElementById("template-item");
 const templateAlertaEl = document.getElementById("template-alerta");
 const btnSimular = document.getElementById("btn-simular");
 
 const kpiTotal = document.getElementById("kpi-total");
-const kpiNormal = document.getElementById("kpi-normal");
-const kpiAtencao = document.getElementById("kpi-atencao");
+const kpiCheio = document.getElementById("kpi-cheio");
 const kpiVazio = document.getElementById("kpi-vazio");
 const hubTotal = document.getElementById("hub-total");
 const pageTitle = document.getElementById("page-title");
 const menuItems = Array.from(document.querySelectorAll(".menu-item[data-view-target]"));
 const views = {
   "visao-geral": document.getElementById("view-visao-geral"),
-  "config-iot": document.getElementById("view-config-iot")
+  "config-iot": document.getElementById("view-config-iot"),
+  "relatorios": document.getElementById("view-relatorios")
 };
 const viewOnlyElements = Array.from(document.querySelectorAll("[data-view-only]"));
 
 const sensorFormEl = document.getElementById("form-sensor");
 const sensorTableBodyEl = document.getElementById("sensor-table-body");
 const sensorTemplateEl = document.getElementById("template-sensor-row");
+const sensorSubmitButtonEl = sensorFormEl.querySelector('button[type="submit"]');
+const btnCancelarEdicaoSensorEl = document.getElementById("btn-cancelar-edicao-sensor");
+const confirmModalEl = document.getElementById("confirm-modal");
+const confirmModalMessageEl = document.getElementById("confirm-modal-message");
+const confirmModalOkEl = document.getElementById("confirm-modal-ok");
+const confirmModalCancelEl = document.getElementById("confirm-modal-cancel");
+const reportSensorSelectEl = document.getElementById("report-sensor-select");
+const reportPeriodButtons = Array.from(document.querySelectorAll(".period-btn"));
+const reportTotalLeiturasEl = document.getElementById("report-total-leituras");
+const reportTotalVazioEl = document.getElementById("report-total-vazio");
+const reportTaxaVazioEl = document.getElementById("report-taxa-vazio");
+const reportHorarioCriticoEl = document.getElementById("report-horario-critico");
+const reportTempoMedioVazioEl = document.getElementById("report-tempo-medio-vazio");
+const reportHourlyChartEl = document.getElementById("report-hourly-chart");
+const reportWeekdayChartEl = document.getElementById("report-weekday-chart");
+const reportDailyListEl = document.getElementById("report-daily-list");
+const reportRankingEl = document.getElementById("report-ranking");
+const reportInsightsEl = document.getElementById("report-insights");
+const reportJsonOutputEl = document.getElementById("report-json-output");
 
 const dadosIniciais = [
   { id: crypto.randomUUID(), corredor: "Corredor A1", nome: "Bebidas - Refrigerantes", distancia: 24, maximo: 120, atualizadoEm: new Date().toISOString() },
@@ -33,6 +51,8 @@ const dadosIniciais = [
 
 let prateleiras = carregar();
 let sensores = carregarSensores();
+let sensorEmEdicaoId = null;
+let reportPeriodoAtual = "diario";
 
 function carregar() {
   const bruto = localStorage.getItem(STORAGE_KEY);
@@ -92,6 +112,348 @@ function salvarSensores() {
   localStorage.setItem(SENSOR_STORAGE_KEY, JSON.stringify(sensores));
 }
 
+function normalizarCorredor(valor) {
+  const base = valor.replace(/^corredor\s*/i, "").trim().toUpperCase();
+  return `Corredor ${base}`;
+}
+
+function preencherFormularioSensor(sensor) {
+  document.getElementById("sensor-nome").value = sensor.nome;
+  document.getElementById("sensor-id").value = sensor.sensorId;
+  document.getElementById("sensor-mac").value = sensor.mac || "";
+  document.getElementById("sensor-corredor").value = sensor.corredor.replace(/^Corredor\s*/i, "");
+  document.getElementById("sensor-lado").value = sensor.lado === "B" ? "B" : "A";
+  document.getElementById("sensor-categoria").value = sensor.categoria;
+}
+
+function limparModoEdicaoSensor() {
+  sensorEmEdicaoId = null;
+  sensorSubmitButtonEl.textContent = "Salvar Dispositivo";
+  btnCancelarEdicaoSensorEl.classList.add("hidden");
+  sensorFormEl.reset();
+  document.getElementById("sensor-lado").value = "A";
+}
+
+function confirmarAcao(mensagem) {
+  return new Promise((resolve) => {
+    confirmModalMessageEl.textContent = mensagem;
+    confirmModalEl.classList.remove("hidden");
+    confirmModalEl.setAttribute("aria-hidden", "false");
+
+    const fechar = (confirmado) => {
+      confirmModalEl.classList.add("hidden");
+      confirmModalEl.setAttribute("aria-hidden", "true");
+      confirmModalOkEl.removeEventListener("click", onConfirmar);
+      confirmModalCancelEl.removeEventListener("click", onCancelar);
+      confirmModalEl.removeEventListener("click", onBackdrop);
+      resolve(confirmado);
+    };
+
+    const onConfirmar = () => fechar(true);
+    const onCancelar = () => fechar(false);
+    const onBackdrop = (event) => {
+      if (event.target === confirmModalEl) fechar(false);
+    };
+
+    confirmModalOkEl.addEventListener("click", onConfirmar);
+    confirmModalCancelEl.addEventListener("click", onCancelar);
+    confirmModalEl.addEventListener("click", onBackdrop);
+  });
+}
+
+function hashTexto(texto) {
+  let hash = 0;
+  for (let i = 0; i < texto.length; i += 1) {
+    hash = (hash * 31 + texto.charCodeAt(i)) % 2147483647;
+  }
+  return hash;
+}
+
+function pseudoRandom(seed) {
+  const valor = Math.sin(seed) * 10000;
+  return valor - Math.floor(valor);
+}
+
+function obterDiasPorPeriodo(periodo) {
+  if (periodo === "diario") return 1;
+  if (periodo === "semanal") return 7;
+  return 30;
+}
+
+function formatarDuracaoMinutos(min) {
+  if (!Number.isFinite(min) || min <= 0) return "0m";
+  const horas = Math.floor(min / 60);
+  const minutos = Math.round(min % 60);
+  if (horas === 0) return `${minutos}m`;
+  return `${horas}h ${minutos}m`;
+}
+
+function gerarHistoricoPrateleira(prateleira, dias) {
+  const base = hashTexto(`${prateleira.id}-${prateleira.nome}`);
+  const historico = [];
+  const horasPico = [9, 10, 11, 17, 18, 19];
+
+  for (let d = dias - 1; d >= 0; d -= 1) {
+    const data = new Date();
+    data.setHours(0, 0, 0, 0);
+    data.setDate(data.getDate() - d);
+
+    for (let h = 0; h < 24; h += 1) {
+      const seed = base + d * 131 + h * 19;
+      const pico = horasPico.includes(h) ? 0.24 : 0.09;
+      const vazio = pseudoRandom(seed) < pico;
+      historico.push({
+        timestamp: new Date(data.getFullYear(), data.getMonth(), data.getDate(), h, 0, 0).toISOString(),
+        data: data.toLocaleDateString("pt-BR"),
+        diaSemana: data.toLocaleDateString("pt-BR", { weekday: "short" }),
+        hora: h,
+        vazio
+      });
+    }
+  }
+
+  return historico;
+}
+
+function calcularMetricasPrateleira(prateleira, historico) {
+  const leiturasVazias = historico.filter((h) => h.vazio);
+  let ocorrencias = 0;
+  let duracaoAtual = 0;
+  let totalMin = 0;
+  const duracoes = [];
+  const inicios = [];
+
+  historico.forEach((leitura, idx) => {
+    if (leitura.vazio) {
+      totalMin += 60;
+      duracaoAtual += 60;
+      const anterior = idx > 0 ? historico[idx - 1] : null;
+      if (!anterior || !anterior.vazio) {
+        ocorrencias += 1;
+        inicios.push(new Date(leitura.timestamp).getTime());
+      }
+    } else if (duracaoAtual > 0) {
+      duracoes.push(duracaoAtual);
+      duracaoAtual = 0;
+    }
+  });
+
+  if (duracaoAtual > 0) duracoes.push(duracaoAtual);
+  const tempoMedioOcorrencia = duracoes.length ? totalMin / duracoes.length : 0;
+
+  const intervalos = [];
+  for (let i = 1; i < inicios.length; i += 1) {
+    intervalos.push((inicios[i] - inicios[i - 1]) / (1000 * 60));
+  }
+  const intervaloMedioReposicao = intervalos.length
+    ? intervalos.reduce((soma, valor) => soma + valor, 0) / intervalos.length
+    : 0;
+
+  return {
+    prateleiraId: prateleira.id,
+    prateleiraNome: prateleira.nome,
+    corredor: prateleira.corredor,
+    totalLeituras: historico.length,
+    totalVazioLeituras: leiturasVazias.length,
+    ocorrenciasVazio: ocorrencias,
+    tempoTotalVazioMin: totalMin,
+    tempoMedioVazioOcorrenciaMin: tempoMedioOcorrencia,
+    intervaloMedioReposicaoMin: intervaloMedioReposicao
+  };
+}
+
+function renderizarRelatorios() {
+  reportSensorSelectEl.innerHTML = "";
+  const todasOption = document.createElement("option");
+  todasOption.value = "__all__";
+  todasOption.textContent = "Todas as prateleiras";
+  reportSensorSelectEl.appendChild(todasOption);
+
+  if (!prateleiras.length) {
+    reportTotalLeiturasEl.textContent = "0";
+    reportTotalVazioEl.textContent = "0";
+    reportTaxaVazioEl.textContent = "Representa 0% das leituras";
+    reportHorarioCriticoEl.textContent = "0m";
+    reportTempoMedioVazioEl.textContent = "Tempo medio por ocorrencia: --";
+    reportHourlyChartEl.innerHTML = "<p>Cadastre prateleiras para gerar relatorios.</p>";
+    reportWeekdayChartEl.innerHTML = "";
+    reportDailyListEl.innerHTML = "";
+    reportRankingEl.innerHTML = "";
+    reportInsightsEl.innerHTML = "<li>Sem dados suficientes para analise.</li>";
+    reportJsonOutputEl.textContent = "{}";
+    return;
+  }
+
+  prateleiras.forEach((sensor) => {
+    const option = document.createElement("option");
+    option.value = sensor.id;
+    option.textContent = `${sensor.nome} (${sensor.corredor})`;
+    reportSensorSelectEl.appendChild(option);
+  });
+
+  if (!prateleiras.some((sensor) => sensor.id === reportSensorSelectEl.value) && reportSensorSelectEl.value !== "__all__") {
+    reportSensorSelectEl.value = "__all__";
+  }
+
+  const periodo = reportPeriodoAtual;
+  const dias = obterDiasPorPeriodo(periodo);
+  const selectedId = reportSensorSelectEl.value;
+  const alvo = selectedId === "__all__"
+    ? prateleiras
+    : prateleiras.filter((p) => p.id === selectedId);
+
+  const historicoTotal = [];
+  const metricasPorPrateleira = alvo.map((prateleira) => {
+    const historico = gerarHistoricoPrateleira(prateleira, dias);
+    historico.forEach((item) => historicoTotal.push({ ...item, prateleiraId: prateleira.id, prateleiraNome: prateleira.nome }));
+    return calcularMetricasPrateleira(prateleira, historico);
+  });
+
+  const totalLeituras = metricasPorPrateleira.reduce((soma, m) => soma + m.totalLeituras, 0);
+  const totalVazio = metricasPorPrateleira.reduce((soma, m) => soma + m.totalVazioLeituras, 0);
+  const tempoTotalVazio = metricasPorPrateleira.reduce((soma, m) => soma + m.tempoTotalVazioMin, 0);
+  const ocorrenciasTotais = metricasPorPrateleira.reduce((soma, m) => soma + m.ocorrenciasVazio, 0);
+  const intervaloMedioGlobal = metricasPorPrateleira
+    .map((m) => m.intervaloMedioReposicaoMin)
+    .filter((v) => v > 0);
+
+  const tempoMedioOcorrenciaGlobal = ocorrenciasTotais ? tempoTotalVazio / ocorrenciasTotais : 0;
+  const intervaloMedio = intervaloMedioGlobal.length
+    ? intervaloMedioGlobal.reduce((s, v) => s + v, 0) / intervaloMedioGlobal.length
+    : 0;
+
+  const taxaVazio = totalLeituras ? Math.round((totalVazio / totalLeituras) * 100) : 0;
+
+  const porHora = Array.from({ length: 24 }, (_, h) => ({
+    hora: h,
+    vazios: historicoTotal.filter((item) => item.hora === h && item.vazio).length
+  }));
+
+  const diasSemanaOrdem = ["dom.", "seg.", "ter.", "qua.", "qui.", "sex.", "sab."];
+  const porDiaSemana = diasSemanaOrdem.map((dia) => ({
+    dia,
+    vazios: historicoTotal.filter((item) => item.diaSemana.toLowerCase().startsWith(dia.slice(0, 3)) && item.vazio).length
+  }));
+
+  const horaCritica = porHora.reduce((atual, item) => (item.vazios > atual.vazios ? item : atual), porHora[0]);
+
+  reportTotalLeiturasEl.textContent = String(totalLeituras);
+  reportTotalVazioEl.textContent = String(ocorrenciasTotais);
+  reportTaxaVazioEl.textContent = `Representa ${taxaVazio}% das leituras`;
+  reportHorarioCriticoEl.textContent = formatarDuracaoMinutos(tempoTotalVazio);
+  reportTempoMedioVazioEl.textContent = `Tempo medio por ocorrencia: ${formatarDuracaoMinutos(tempoMedioOcorrenciaGlobal)}`;
+
+  const maiorHora = Math.max(...porHora.map((item) => item.vazios), 1);
+  reportHourlyChartEl.innerHTML = "";
+  porHora.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "hour-row";
+    const largura = Math.round((item.vazios / maiorHora) * 100);
+    const intensidade = item.vazios === 0 ? "baixo" : item.vazios >= horaCritica.vazios * 0.7 ? "alto" : "medio";
+    row.innerHTML = `
+      <span>${String(item.hora).padStart(2, "0")}:00</span>
+      <div class="hour-bar-bg"><div class="hour-bar" style="width:${largura}%"></div></div>
+      <span class="hour-label">${item.vazios} vez(es) - risco ${intensidade}</span>
+    `;
+    reportHourlyChartEl.appendChild(row);
+  });
+
+  const maiorDia = Math.max(...porDiaSemana.map((d) => d.vazios), 1);
+  reportWeekdayChartEl.innerHTML = "";
+  porDiaSemana.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "hour-row";
+    const largura = Math.round((item.vazios / maiorDia) * 100);
+    row.innerHTML = `
+      <span>${item.dia}</span>
+      <div class="hour-bar-bg"><div class="hour-bar" style="width:${largura}%"></div></div>
+      <span class="hour-label">${item.vazios} vez(es)</span>
+    `;
+    reportWeekdayChartEl.appendChild(row);
+  });
+
+  const porDiaMap = new Map();
+  historicoTotal.forEach((item) => {
+    if (!porDiaMap.has(item.data)) {
+      porDiaMap.set(item.data, { total: 0, vazio: 0 });
+    }
+    const dia = porDiaMap.get(item.data);
+    dia.total += 1;
+    if (item.vazio) dia.vazio += 1;
+  });
+
+  reportDailyListEl.innerHTML = "";
+  Array.from(porDiaMap.entries()).reverse().forEach(([data, valores]) => {
+    const item = document.createElement("article");
+    item.className = "daily-item";
+    const taxaDia = Math.round((valores.vazio / valores.total) * 100);
+    item.innerHTML = `
+      <strong>${data}</strong>
+      <small>Ocorrencias de vazio: ${valores.vazio} / ${valores.total} leituras (${taxaDia}%)</small>
+    `;
+    reportDailyListEl.appendChild(item);
+  });
+
+  const diasComVazio = Array.from(porDiaMap.values()).filter((dia) => dia.vazio > 0).length;
+  const mediaVaziosDia = Math.round(ocorrenciasTotais / Math.max(1, porDiaMap.size));
+  const horarioInicioCritico = String(horaCritica.hora).padStart(2, "0");
+  const horarioFimCritico = String((horaCritica.hora + 1) % 24).padStart(2, "0");
+  const diaCritico = porDiaSemana.reduce((atual, item) => (item.vazios > atual.vazios ? item : atual), porDiaSemana[0]);
+
+  const ranking = [...metricasPorPrateleira]
+    .sort((a, b) => b.ocorrenciasVazio - a.ocorrenciasVazio)
+    .slice(0, 5);
+
+  reportRankingEl.innerHTML = "";
+  ranking.forEach((item, idx) => {
+    const card = document.createElement("article");
+    card.className = "daily-item";
+    card.innerHTML = `
+      <strong>#${idx + 1} ${item.prateleiraNome}</strong>
+      <small>${item.ocorrenciasVazio} ocorrencia(s), tempo vazio ${formatarDuracaoMinutos(item.tempoTotalVazioMin)}, intervalo medio reposicao ${formatarDuracaoMinutos(item.intervaloMedioReposicaoMin)}</small>
+    `;
+    reportRankingEl.appendChild(card);
+  });
+
+  reportInsightsEl.innerHTML = `
+    <li><strong>Janela critica:</strong> maior risco entre ${horarioInicioCritico}:00 e ${horarioFimCritico}:00.</li>
+    <li><strong>Dia critico:</strong> maior incidencia em ${diaCritico.dia}.</li>
+    <li><strong>Frequencia:</strong> em media, ${mediaVaziosDia} ocorrencia(s) de vazio por dia no periodo.</li>
+    <li><strong>Impacto:</strong> o sensor ficou vazio em ${diasComVazio} de ${porDiaMap.size} dias analisados.</li>
+    <li><strong>Acao sugerida:</strong> reforcar reposicao antes das ${horarioInicioCritico}:00 e aumentar cobertura em ${diaCritico.dia}.</li>
+    <li><strong>Intervalo medio entre reposicoes:</strong> ${formatarDuracaoMinutos(intervaloMedio)}.</li>
+  `;
+
+  const saidaEstruturada = {
+    periodo,
+    diasAnalisados: dias,
+    escopo: selectedId === "__all__" ? "todas_prateleiras" : "prateleira_unica",
+    resumoGeral: {
+      totalLeituras,
+      ocorrenciasVazio: ocorrenciasTotais,
+      taxaVazioPercentual: taxaVazio,
+      tempoTotalVazioMin: tempoTotalVazio,
+      tempoMedioVazioOcorrenciaMin: Number(tempoMedioOcorrenciaGlobal.toFixed(2)),
+      intervaloMedioReposicaoMin: Number(intervaloMedio.toFixed(2))
+    },
+    metricasPrincipaisPorPrateleira: metricasPorPrateleira,
+    padroes: {
+      porHora,
+      porDiaSemana,
+      horarioMaisCritico: horaCritica.hora,
+      diaMaisCritico: diaCritico.dia
+    },
+    rankingPrateleirasCriticas: ranking,
+    insights: [
+      `Reforcar reposicao entre ${horarioInicioCritico}:00-${horarioFimCritico}:00.`,
+      `Acompanhar operacao em ${diaCritico.dia} por ser o dia mais critico.`,
+      "Priorizar prateleiras do topo do ranking nas rotas de reposicao."
+    ]
+  };
+
+  reportJsonOutputEl.textContent = JSON.stringify(saidaEstruturada, null, 2);
+}
+
 function getPercentual(item) {
   const maximo = Number(item.maximo);
   if (maximo <= 0) return 0;
@@ -101,14 +463,12 @@ function getPercentual(item) {
 
 function getStatus(percentual) {
   if (percentual < 15) return "vazio";
-  if (percentual <= 50) return "atencao";
-  return "normal";
+  return "cheio";
 }
 
 function labelStatus(status) {
   if (status === "vazio") return "Vazio";
-  if (status === "atencao") return "Atencao";
-  return "Normal";
+  return "Cheio";
 }
 
 function tempoRelativo(iso) {
@@ -122,12 +482,11 @@ function atualizarKpis() {
     const status = getStatus(getPercentual(item));
     acc[status] += 1;
     return acc;
-  }, { normal: 0, atencao: 0, vazio: 0 });
+  }, { cheio: 0, vazio: 0 });
 
   const total = prateleiras.length;
   kpiTotal.textContent = `${total} secoes`;
-  kpiNormal.textContent = String(totais.normal);
-  kpiAtencao.textContent = String(totais.atencao);
+  kpiCheio.textContent = String(totais.cheio);
   kpiVazio.textContent = String(totais.vazio);
   hubTotal.textContent = String(total);
 }
@@ -148,7 +507,6 @@ function renderizarPrateleiras() {
     const corredor = clone.querySelector(".shelf-corredor");
     const percentualEl = clone.querySelector(".shelf-percentual");
     const nome = clone.querySelector(".shelf-nome");
-    const distancia = clone.querySelector(".shelf-distancia");
     const progressBar = clone.querySelector(".progress-bar");
     const updated = clone.querySelector(".shelf-updated");
     const btnRemover = clone.querySelector(".btn-remover");
@@ -157,12 +515,13 @@ function renderizarPrateleiras() {
     corredor.textContent = item.corredor.toUpperCase();
     percentualEl.textContent = `${percentual}%`;
     nome.textContent = item.nome;
-    distancia.textContent = `Distancia Sensor: ${item.distancia}cm`;
     progressBar.style.width = `${percentual}%`;
     progressBar.classList.add(`status-${status}`);
     updated.textContent = `Atualizado: ${tempoRelativo(item.atualizadoEm)}`;
 
-    btnRemover.addEventListener("click", () => {
+    btnRemover.addEventListener("click", async () => {
+      const confirmado = await confirmarAcao(`Deseja remover a secao "${item.nome}"?`);
+      if (!confirmado) return;
       prateleiras = prateleiras.filter((p) => p.id !== item.id);
       salvar();
       renderizar();
@@ -179,7 +538,7 @@ function renderizarAlertas() {
       const percentual = getPercentual(item);
       return { item, percentual, status: getStatus(percentual) };
     })
-    .filter(({ status }) => status !== "normal")
+    .filter(({ status }) => status === "vazio")
     .sort((a, b) => a.percentual - b.percentual);
 
   if (!itensComStatus.length) {
@@ -205,6 +564,7 @@ function renderizar() {
   renderizarPrateleiras();
   renderizarAlertas();
   renderizarSensores();
+  renderizarRelatorios();
 }
 
 function setView(viewName) {
@@ -220,7 +580,15 @@ function setView(viewName) {
     el.classList.toggle("hidden", el.dataset.viewOnly !== viewName);
   });
 
-  pageTitle.textContent = viewName === "config-iot" ? "Configuracoes" : "Painel de Monitoramento";
+  if (viewName === "config-iot") {
+    pageTitle.textContent = "Configuracoes";
+    return;
+  }
+  if (viewName === "relatorios") {
+    pageTitle.textContent = "Relatorios Inteligentes";
+    return;
+  }
+  pageTitle.textContent = "Painel de Monitoramento";
 }
 
 function renderizarSensores() {
@@ -239,42 +607,30 @@ function renderizarSensores() {
     clone.querySelector(".sensor-row-lado").textContent = sensor.lado === "B" ? "Lado B (Direita)" : "Lado A (Esquerda)";
     clone.querySelector(".sensor-row-categoria").textContent = sensor.categoria;
 
-    const btn = clone.querySelector(".btn-remover-sensor");
-    btn.addEventListener("click", () => {
+    const btnEditar = clone.querySelector(".btn-editar-sensor");
+    const btnRemover = clone.querySelector(".btn-remover-sensor");
+
+    btnEditar.addEventListener("click", () => {
+      sensorEmEdicaoId = sensor.id;
+      preencherFormularioSensor(sensor);
+      sensorSubmitButtonEl.textContent = "Atualizar Dispositivo";
+      btnCancelarEdicaoSensorEl.classList.remove("hidden");
+    });
+
+    btnRemover.addEventListener("click", async () => {
+      const confirmado = await confirmarAcao(`Deseja remover o sensor "${sensor.nome}" (${sensor.sensorId})?`);
+      if (!confirmado) return;
       sensores = sensores.filter((item) => item.id !== sensor.id);
       salvarSensores();
       renderizarSensores();
+      renderizarRelatorios();
+      if (sensorEmEdicaoId === sensor.id) limparModoEdicaoSensor();
       hubTotal.textContent = String(prateleiras.length);
     });
 
     sensorTableBodyEl.appendChild(clone);
   });
 }
-
-formEl.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const nome = document.getElementById("nome").value.trim();
-  const corredor = document.getElementById("corredor").value.trim();
-  const distancia = Number(document.getElementById("distancia").value);
-  const maximo = Number(document.getElementById("maximo").value);
-
-  if (!nome || !corredor || Number.isNaN(distancia) || Number.isNaN(maximo)) return;
-
-  prateleiras.unshift({
-    id: crypto.randomUUID(),
-    nome,
-    corredor,
-    distancia,
-    maximo,
-    atualizadoEm: new Date().toISOString()
-  });
-
-  salvar();
-  renderizar();
-  formEl.reset();
-  document.getElementById("maximo").value = "120";
-});
 
 btnSimular.addEventListener("click", () => {
   prateleiras = prateleiras.map((item) => {
@@ -310,20 +666,52 @@ sensorFormEl.addEventListener("submit", (event) => {
 
   if (!nome || !sensorId || !corredor || !categoria || !lado) return;
 
-  sensores.unshift({
-    id: crypto.randomUUID(),
-    nome,
-    sensorId,
-    mac,
-    corredor: `Corredor ${corredor.toUpperCase()}`,
-    lado,
-    categoria,
-    status: "online"
-  });
+  if (sensorEmEdicaoId) {
+    sensores = sensores.map((sensor) => {
+      if (sensor.id !== sensorEmEdicaoId) return sensor;
+      return {
+        ...sensor,
+        nome,
+        sensorId,
+        mac,
+        corredor: normalizarCorredor(corredor),
+        lado,
+        categoria
+      };
+    });
+  } else {
+    sensores.unshift({
+      id: crypto.randomUUID(),
+      nome,
+      sensorId,
+      mac,
+      corredor: normalizarCorredor(corredor),
+      lado,
+      categoria,
+      status: "online"
+    });
+  }
 
   salvarSensores();
   renderizarSensores();
-  sensorFormEl.reset();
+  renderizarRelatorios();
+  limparModoEdicaoSensor();
+});
+
+btnCancelarEdicaoSensorEl.addEventListener("click", () => {
+  limparModoEdicaoSensor();
+});
+
+reportSensorSelectEl.addEventListener("change", () => {
+  renderizarRelatorios();
+});
+
+reportPeriodButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    reportPeriodoAtual = button.dataset.period;
+    reportPeriodButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
+    renderizarRelatorios();
+  });
 });
 
 setView("visao-geral");
