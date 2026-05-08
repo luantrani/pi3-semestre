@@ -14,6 +14,7 @@
         <a class="menu-item active" href="#" data-view-target="visao-geral">Visao Geral</a>
         <a class="menu-item" href="#" data-view-target="config-iot">Configuracoes IoT</a>
         <a class="menu-item" href="#" data-view-target="relatorios">Relatorios</a>
+        <a class="menu-item" href="#" data-view-target="repositor">Repositor</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>
@@ -66,6 +67,34 @@
               <div id="lista-alertas" class="alerts"></div>
             </section>
           </div>
+        </section>
+      </section>
+
+      <section id="view-repositor" class="view hidden">
+        <section class="card">
+          <h2>Painel do Repositor</h2>
+          <p class="report-intro">Aqui você vê apenas as prateleiras que precisam de reposição. Priorize os alertas mais urgentes.</p>
+          <section class="kpis report-kpis">
+            <article class="kpi-card">
+              <small>Total monitorado</small>
+              <strong id="repositor-total">0</strong>
+              <p>Secoes ativas</p>
+            </article>
+            <article class="kpi-card danger">
+              <small>Precisa de reposição</small>
+              <strong id="repositor-vazio">0</strong>
+              <p>Alertas ativos</p>
+            </article>
+            <article class="kpi-card">
+              <small>Mais urgente</small>
+              <strong id="repositor-urgente">--</strong>
+              <p>Prateleira critica</p>
+            </article>
+          </section>
+        </section>
+        <section class="card">
+          <h2>Alertas de Reposição</h2>
+          <div id="repositor-alertas" class="alerts"></div>
         </section>
       </section>
 

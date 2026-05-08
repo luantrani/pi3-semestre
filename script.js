@@ -22,7 +22,8 @@ const menuItems = Array.from(document.querySelectorAll(".menu-item[data-view-tar
 const views = {
   "visao-geral": document.getElementById("view-visao-geral"),
   "config-iot": document.getElementById("view-config-iot"),
-  "relatorios": document.getElementById("view-relatorios")
+  "relatorios": document.getElementById("view-relatorios"),
+  "repositor": document.getElementById("view-repositor")
 };
 const viewOnlyElements = Array.from(document.querySelectorAll("[data-view-only]"));
 
@@ -49,6 +50,14 @@ const reportDailyListEl = document.getElementById("report-daily-list");
 const reportRankingEl = document.getElementById("report-ranking");
 const reportInsightsEl = document.getElementById("report-insights");
 const reportJsonOutputEl = document.getElementById("report-json-output");
+const repositorTotalEl = document.getElementById("repositor-total");
+const repositorVazioEl = document.getElementById("repositor-vazio");
+const repositorUrgenteEl = document.getElementById("repositor-urgente");
+const repositorAlertasEl = document.getElementById("repositor-alertas");
+
+const appEl = document.querySelector(".app");
+
+let usuarioLogado = true;
 
 // Dados iniciais exibidos quando o sistema não encontra nada salvo no localStorage.
 const dadosIniciais = [
@@ -297,6 +306,7 @@ function calcularMetricasPrateleira(prateleira, historico) {
 
 // Renderiza todo o painel de relatórios, incluindo filtros, gráficos e métricas.
 function renderizarRelatorios() {
+  const selectedIdInicial = reportSensorSelectEl.value || "__all__";
   reportSensorSelectEl.innerHTML = "";
   const todasOption = document.createElement("option");
   todasOption.value = "__all__";
@@ -325,7 +335,9 @@ function renderizarRelatorios() {
     reportSensorSelectEl.appendChild(option);
   });
 
-  if (!sensores.some((sensor) => sensor.id === reportSensorSelectEl.value) && reportSensorSelectEl.value !== "__all__") {
+  if (selectedIdInicial === "__all__" || sensores.some((sensor) => sensor.id === selectedIdInicial)) {
+    reportSensorSelectEl.value = selectedIdInicial;
+  } else {
     reportSensorSelectEl.value = "__all__";
   }
 
@@ -596,16 +608,49 @@ function renderizarAlertas() {
   });
 }
 
+function renderizarRepositor() {
+  repositorTotalEl.textContent = String(prateleiras.length);
+
+  const itensVazios = prateleiras
+    .map((item) => ({ item, percentual: getPercentual(item), status: getStatus(getPercentual(item)) }))
+    .filter(({ status }) => status === "vazio")
+    .sort((a, b) => a.percentual - b.percentual);
+
+  repositorVazioEl.textContent = String(itensVazios.length);
+  repositorUrgenteEl.textContent = itensVazios.length
+    ? `${itensVazios[0].item.nome} (${itensVazios[0].item.corredor})`
+    : "--";
+
+  repositorAlertasEl.innerHTML = "";
+  if (!itensVazios.length) {
+    repositorAlertasEl.innerHTML = "<p>Nenhum alerta ativo no momento. Todas as prateleiras estão com estoque adequado.</p>";
+    return;
+  }
+
+  itensVazios.forEach(({ item }) => {
+    const clone = templateAlertaEl.content.cloneNode(true);
+    const alertItem = clone.querySelector(".alert-item");
+    const title = clone.querySelector(".alert-title");
+    const time = clone.querySelector(".alert-time");
+
+    alertItem.classList.add("vazio");
+    title.textContent = `Reposição: ${item.nome} (${item.corredor})`;
+    time.textContent = tempoRelativo(item.atualizadoEm);
+    repositorAlertasEl.appendChild(clone);
+  });
+}
+
 // Função principal que re-renderiza todas as partes da interface.
 function renderizar() {
   atualizarKpis();
   renderizarPrateleiras();
   renderizarAlertas();
+  renderizarRepositor();
   renderizarSensores();
   renderizarRelatorios();
 }
 
-// Alterna entre as views do aplicativo: visão geral, configuração e relatórios.
+// Alterna entre as views do aplicativo: visão geral, configuração, relatórios e repositor.
 function setView(viewName) {
   Object.entries(views).forEach(([name, element]) => {
     element.classList.toggle("hidden", name !== viewName);
@@ -625,6 +670,10 @@ function setView(viewName) {
   }
   if (viewName === "relatorios") {
     pageTitle.textContent = "Relatorios Inteligentes";
+    return;
+  }
+  if (viewName === "repositor") {
+    pageTitle.textContent = "Painel do Repositor";
     return;
   }
   pageTitle.textContent = "Painel de Monitoramento";
