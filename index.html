@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GPI - Painel de Monitoramento</title>
+  <title>GPI - Visão Geral</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,40 +11,39 @@
     <aside class="sidebar">
       <div class="brand">GPI</div>
       <nav class="menu">
-        <a class="menu-item active" href="#" data-view-target="visao-geral">Visao Geral</a>
-        <a class="menu-item" href="#" data-view-target="config-iot">Configuracoes IoT</a>
-        <a class="menu-item" href="#" data-view-target="relatorios">Relatorios</a>
-        <a class="menu-item" href="#" data-view-target="repositor">Repositor</a>
+        <a class="menu-item active" href="index.html">Visao Geral</a>
+        <a class="menu-item" href="config-iot.html">Configuracoes IoT</a>
+        <a class="menu-item" href="relatorios.html">Relatorios</a>
+        <a class="menu-item" href="repositor.html">Repositor</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>
-        <p>Sistema IoT online. <span id="hub-total">0</span> sensores ativos.</p>
+        <p>Sistema IoT online. <span>4</span> sensores ativos.</p>
       </div>
     </aside>
 
     <main class="content">
       <header class="header">
-        <h1 id="page-title">Painel de Monitoramento</h1>
+        <h1>Painel de Monitoramento</h1>
         <div class="header-actions">
-          <button id="btn-simular" type="button" data-view-only="visao-geral">Atualizar leituras</button>
         </div>
       </header>
 
-      <section id="view-visao-geral" class="view">
+      <section>
         <section class="kpis">
           <article class="kpi-card">
             <small>Total Monitorado</small>
-            <strong id="kpi-total">0 secoes</strong>
+            <strong>4 secoes</strong>
             <p>Cobertura ativa na loja</p>
           </article>
           <article class="kpi-card">
             <small>Cheio</small>
-            <strong id="kpi-cheio">0</strong>
+            <strong>2</strong>
             <p>Secoes com estoque disponivel</p>
           </article>
           <article class="kpi-card danger">
             <small>Vazio</small>
-            <strong id="kpi-vazio">0</strong>
+            <strong>2</strong>
             <p>Secoes que precisam de reposicao</p>
           </article>
         </section>
@@ -58,227 +57,94 @@
                 <span class="dot vazio"></span>Vazio
               </div>
             </div>
-            <div id="lista-prateleiras" class="shelf-grid"></div>
+            <div class="shelf-grid">
+              <article class="shelf-item status-cheio">
+                <div class="shelf-top">
+                  <small class="shelf-corredor">Corredor A1</small>
+                </div>
+                <h3 class="shelf-nome">Bebidas - Refrigerantes</h3>
+                <div class="shelf-status">
+                  <span class="peso-atual">85%</span> cheio
+                </div>
+                <div class="shelf-bottom">
+                  <small class="shelf-updated">Atualizado há 5 min</small>
+                </div>
+              </article>
+              <article class="shelf-item status-vazio">
+                <div class="shelf-top">
+                  <small class="shelf-corredor">Corredor A1</small>
+                </div>
+                <h3 class="shelf-nome">Bebidas - Sucos</h3>
+                <div class="shelf-status">
+                  <span class="peso-atual">15%</span> cheio
+                </div>
+                <div class="shelf-bottom">
+                  <small class="shelf-updated">Atualizado há 10 min</small>
+                </div>
+              </article>
+              <article class="shelf-item status-cheio">
+                <div class="shelf-top">
+                  <small class="shelf-corredor">Corredor A2</small>
+                </div>
+                <h3 class="shelf-nome">Limpeza - Sabão em Pó</h3>
+                <div class="shelf-status">
+                  <span class="peso-atual">90%</span> cheio
+                </div>
+                <div class="shelf-bottom">
+                  <small class="shelf-updated">Atualizado há 2 min</small>
+                </div>
+              </article>
+              <article class="shelf-item status-vazio">
+                <div class="shelf-top">
+                  <small class="shelf-corredor">Corredor A2</small>
+                </div>
+                <h3 class="shelf-nome">Limpeza - Amaciante</h3>
+                <div class="shelf-status">
+                  <span class="peso-atual">10%</span> cheio
+                </div>
+                <div class="shelf-bottom">
+                  <small class="shelf-updated">Atualizado há 15 min</small>
+                </div>
+              </article>
+            </div>
           </div>
 
           <div class="right-panel">
             <section class="card">
-              <h2>Alertas Recentes</h2>
-              <div id="lista-alertas" class="alerts"></div>
+              <h2>Histórico de Alertas</h2>
+              <div class="alerts">
+                <article class="alert-item">
+                  <strong class="alert-title">Bebidas - Sucos está vazio — 10 unidades</strong>
+                  <p class="alert-time">Há 10 minutos</p>
+                </article>
+                <article class="alert-item">
+                  <strong class="alert-title">Limpeza - Amaciante precisa reposição — 5 unidades</strong>
+                  <p class="alert-time">Há 15 minutos</p>
+                </article>
+                <article class="alert-item vazio">
+                  <strong class="alert-title">Bebidas - Sucos ficou vazio — 2 vezes hoje</strong>
+                  <p class="alert-time">Hoje, 07:30</p>
+                </article>
+                <article class="alert-item vazio">
+                  <strong class="alert-title">Limpeza - Amaciante ficou vazio — 1 vez hoje</strong>
+                  <p class="alert-time">Hoje, 06:45</p>
+                </article>
+                <article class="alert-item">
+                  <strong class="alert-title">Bebidas - Refrigerantes volta ao nível normal</strong>
+                  <p class="alert-time">Ontem, 18:20</p>
+                </article>
+                <article class="alert-item">
+                  <strong class="alert-title">Limpeza - Sabão em Pó mantém estoque</strong>
+                  <p class="alert-time">Ontem, 16:10</p>
+                </article>
+              </div>
             </section>
           </div>
         </section>
       </section>
 
-      <section id="view-repositor" class="view hidden">
-        <section class="card">
-          <h2>Painel do Repositor</h2>
-          <p class="report-intro">Aqui você vê apenas as prateleiras que precisam de reposição. Priorize os alertas mais urgentes.</p>
-          <section class="kpis report-kpis">
-            <article class="kpi-card">
-              <small>Total monitorado</small>
-              <strong id="repositor-total">0</strong>
-              <p>Secoes ativas</p>
-            </article>
-            <article class="kpi-card danger">
-              <small>Precisa de reposição</small>
-              <strong id="repositor-vazio">0</strong>
-              <p>Alertas ativos</p>
-            </article>
-            <article class="kpi-card">
-              <small>Mais urgente</small>
-              <strong id="repositor-urgente">--</strong>
-              <p>Prateleira critica</p>
-            </article>
-          </section>
-        </section>
-        <section class="card">
-          <h2>Alertas de Reposição</h2>
-          <div id="repositor-alertas" class="alerts"></div>
-        </section>
-      </section>
-
-      <section id="view-config-iot" class="view hidden">
-        <section class="card">
-          <h2>Cadastrar Novo Dispositivo</h2>
-          <form id="form-sensor" class="sensor-form">
-            <div class="form-col">
-              <label>Nome do Sensor *</label>
-              <input id="sensor-nome" type="text" placeholder="Ex: Sensor Bebidas Frias" required />
-
-              <label>ID do Sensor (NodeMCU/ESP32) *</label>
-              <input id="sensor-id" type="text" placeholder="Ex: US-1023" required />
-
-              <label>MAC Address (Opcional)</label>
-              <input id="sensor-mac" type="text" placeholder="00:1B:44:11:3A:B7" />
-            </div>
-
-            <div class="form-col">
-              <label>Corredor *</label>
-              <input id="sensor-corredor" type="text" placeholder="Ex: A3" required />
-
-              <label>Lado do Corredor *</label>
-              <select id="sensor-lado" required>
-                <option value="A">Lado A (Esquerda)</option>
-                <option value="B">Lado B (Direita)</option>
-              </select>
-
-              <label>Categoria / Produto Base *</label>
-              <input id="sensor-categoria" type="text" placeholder="Ex: Biscoitos Recheados" required />
-            </div>
-
-            <div class="sensor-actions">
-              <button id="btn-cancelar-edicao-sensor" type="button" class="btn-cancelar-edicao hidden">Cancelar edicao</button>
-              <button type="submit">Salvar Dispositivo</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="card sensor-list-card">
-          <h2>Sensores Cadastrados</h2>
-          <div class="sensor-table-wrap">
-            <table class="sensor-table">
-              <thead>
-                <tr>
-                  <th>Nome e ID do Sensor</th>
-                  <th>Posicao</th>
-                  <th>Categoria Mapeada</th>
-                  <th>Status</th>
-                  <th>Acoes</th>
-                </tr>
-              </thead>
-              <tbody id="sensor-table-body"></tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-
-      <section id="view-relatorios" class="view hidden">
-        <section class="card">
-          <p class="report-intro">
-            Este painel mostra quando o sensor fica <strong>Vazio</strong>, quantas vezes isso acontece e em quais horarios a reposicao deve ser priorizada.
-          </p>
-          <div class="report-filter">
-            <div>
-              <label for="report-sensor-select">Sensor</label>
-              <select id="report-sensor-select">
-                <option value="__all__">Todos os sensores</option>
-              </select>
-            </div>
-            <div>
-              <label>Tipo de relatorio</label>
-              <div class="period-toggle">
-                <button id="btn-report-diario" type="button" class="period-btn active" data-period="diario">Diario</button>
-                <button id="btn-report-semanal" type="button" class="period-btn" data-period="semanal">Semanal</button>
-                <button id="btn-report-mensal" type="button" class="period-btn" data-period="mensal">Mensal</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="kpis report-kpis">
-          <article class="kpi-card">
-            <small>Leituras analisadas</small>
-            <strong id="report-total-leituras">0</strong>
-            <p>Total de verificacoes no periodo selecionado</p>
-          </article>
-          <article class="kpi-card danger">
-            <small>Ocorrencias de vazio</small>
-            <strong id="report-total-vazio">0</strong>
-            <p id="report-taxa-vazio">Representa 0% das leituras</p>
-          </article>
-          <article class="kpi-card">
-            <small>Tempo total vazio</small>
-            <strong id="report-horario-critico">--:--</strong>
-            <p id="report-tempo-medio-vazio">Tempo medio por ocorrencia: --</p>
-          </article>
-        </section>
-
-        <section class="card report-insights-card">
-          <h2>Leitura Rapida (Insights)</h2>
-          <ul id="report-insights" class="report-insights"></ul>
-        </section>
-
-        <section class="card report-grid">
-          <article>
-            <h2>Em quais horarios o sensor fica vazio</h2>
-            <div id="report-hourly-chart" class="hourly-chart"></div>
-          </article>
-          <article>
-            <h2>Dias da semana mais criticos</h2>
-            <div id="report-weekday-chart" class="hourly-chart"></div>
-          </article>
-        </section>
-
-        <section class="card report-grid">
-          <article>
-            <h2>Resumo por periodo</h2>
-            <div id="report-daily-list" class="report-daily-list"></div>
-          </article>
-          <article>
-            <h2>Ranking de prateleiras criticas</h2>
-            <div id="report-ranking" class="report-daily-list"></div>
-          </article>
-        </section>
-
-        <section class="card" style="display:none;">
-          <h2>Saida estruturada para dashboard (JSON)</h2>
-          <pre id="report-json-output" class="report-json"></pre>
-        </section>
-      </section>
     </main>
   </div>
 
-  <template id="template-sensor-row">
-    <tr>
-      <td>
-        <strong class="sensor-row-nome"></strong>
-        <small class="sensor-row-id"></small>
-      </td>
-      <td>
-        <span class="sensor-row-corredor"></span>
-        <small class="sensor-row-lado"></small>
-      </td>
-      <td class="sensor-row-categoria"></td>
-      <td><span class="sensor-status online">Online</span></td>
-      <td>
-        <button class="btn-editar-sensor" type="button">Editar</button>
-        <button class="btn-remover-sensor" type="button">Remover</button>
-      </td>
-    </tr>
-  </template>
-
-  <template id="template-item">
-    <article class="shelf-item">
-      <div class="shelf-top">
-        <small class="shelf-corredor"></small>
-      </div>
-      <h3 class="shelf-nome"></h3>
-      <div class="shelf-bottom">
-        <small class="shelf-updated"></small>
-        <button class="btn-remover" type="button">Remover</button>
-      </div>
-    </article>
-  </template>
-
-  <template id="template-alerta">
-    <article class="alert-item">
-      <strong class="alert-title"></strong>
-      <p class="alert-time"></p>
-    </article>
-  </template>
-
-  <div id="confirm-modal" class="confirm-modal hidden" aria-hidden="true">
-    <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
-      <h3 id="confirm-modal-title">Confirmar acao</h3>
-      <p id="confirm-modal-message"></p>
-      <div class="confirm-actions">
-        <button id="confirm-modal-cancel" type="button" class="btn-cancelar-edicao">Cancelar</button>
-        <button id="confirm-modal-ok" type="button" class="btn-remover-sensor">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
