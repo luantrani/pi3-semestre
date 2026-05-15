@@ -1,0 +1,39 @@
+<?php
+$controllerName = $_GET['controller'] ?? 'Home';
+$methodName     = $_GET['action']     ?? 'index';
+
+$controllerClass = ucfirst($controllerName) . "Controller";
+
+$arquivo = "controller/{$controllerClass}.php";
+
+if (file_exists($arquivo)) {
+    require_once $arquivo;
+    
+    if (class_exists($controllerClass)) {
+        $objetoController = new $controllerClass();
+        
+        if (method_exists($objetoController, $methodName)) {
+            $objetoController->$methodName();
+        } else {
+            die("Erro: A ação '$methodName' não existe.");
+        }
+    }
+} else {
+    die("Erro: O controlador '$controllerClass' não foi encontrado.");
+}
+
+spl_autoload_register(function ($classe) {
+
+    $pastas = ['controller', 'model', 'dao'];
+
+    foreach ($pastas as $pasta) {
+
+        $arquivo = __DIR__ . DIRECTORY_SEPARATOR . $pasta . DIRECTORY_SEPARATOR . $classe . '.php';
+
+
+        if (file_exists($arquivo)) {
+            require_once $arquivo;
+            return; 
+        }
+    }
+});
