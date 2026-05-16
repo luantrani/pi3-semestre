@@ -9,7 +9,6 @@ class UsuarioDAO {
     
     public function cadastrar(Usuario $usuario) {
         try {
-            // Ajustei para 'usuarios' assumindo ser o padrão
             $sql = "INSERT INTO usuarios (nome, login, senha, nivel_acesso) 
                     VALUES (:nome, :login, :senha, :nivelAcesso)";
             
@@ -21,7 +20,19 @@ class UsuarioDAO {
             
             return $stmt->execute();
         } catch (PDOException $e) {
-            throw new Exception("Erro ao inserir usuário no banco de dados.");
+            throw new Exception("Erro ao inserir usuário no banco de dados." . $e->getMessage());
+        }
+    }
+
+    public function listarPorNivelAcesso($nivelAcesso) {
+        try {
+            $sql = "SELECT id, nome, login, nivel_acesso FROM usuarios WHERE nivel_acesso = :nivelAcesso ORDER BY nome ASC";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':nivelAcesso', $nivelAcesso);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao listar usuários por nível de acesso. " . $e->getMessage());
         }
     }
 

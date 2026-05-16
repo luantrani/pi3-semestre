@@ -7,6 +7,13 @@ class Usuario {
     private $senha;
     private $nivelAcesso; // 'gerente' ou 'repositor'
 
+    public function __construct($id = null, $nome = null, $login = null, $senha = null, $nivelAcesso = 'repositor') {
+        $this->id = $id;
+        $this->nome = $nome;
+        $this->login = $login;
+        $this->senha = $senha;
+        $this->nivelAcesso = $nivelAcesso;
+    }
 
     public function podeConfigurarSensores() {
         return $this->nivelAcesso === 'gerente';

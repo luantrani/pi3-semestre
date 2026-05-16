@@ -13,10 +13,20 @@ class UsuarioController {
             $usuario = new Usuario($nome, $login, $senhaHash, $nivelAcesso);
             $usuarioDAO = new UsuarioDAO();
             $sucesso = $usuarioDAO->cadastrar($usuario);
-            header("Location: index.php?status=sucesso");
+
+            if ($nivelAcesso === 'repositor') {
+                header('Location: view/cadastro-repositor.php?status=sucesso');
+            } else {
+                header('Location: index.php?status=sucesso');
+            }
             exit;
         } catch (Exception $e) {
-            echo "Ops! Tivemos um problema ao processar seu cadastro. Tente novamente mais tarde.";
+            if (($nivelAcesso ?? '') === 'repositor') {
+                header('Location: view/cadastro-repositor.php?status=erro');
+            } else {
+                echo "Ops! Tivemos um problema ao processar seu cadastro. Tente novamente mais tarde.";
+            }
+            exit;
         }
     }
 

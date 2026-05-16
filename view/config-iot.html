@@ -15,7 +15,8 @@
         <a class="menu-item active" href="config-iot.html">Configuracoes IoT</a>
         <a class="menu-item" href="relatorios.html">Relatorios</a>
         <a class="menu-item" href="repositor.html">Repositor</a>
-        <a class="menu-item" href="cadastro-repositor.html">Cadastro Repositor</a>
+        <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
+        <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>
@@ -36,33 +37,36 @@
           <form class="sensor-form">
             <div class="form-col">
               <label>Nome do Sensor *</label>
-              <input type="text" placeholder="Ex: Sensor Bebidas Frias" required />
+              <input type="text" name="nomeSensor" placeholder="Ex: Sensor Bebidas Frias" required />
 
               <label>ID do Sensor (NodeMCU/ESP32) *</label>
-              <input type="text" placeholder="Ex: US-1023" required />
+              <input type="text" name="idSensor" placeholder="Ex: US-1023" required />
 
               <label>MAC Address (Opcional)</label>
-              <input type="text" placeholder="00:1B:44:11:3A:B7" />
+              <input type="text" name="macAddress" placeholder="00:1B:44:11:3A:B7" />
             </div>
 
             <div class="form-col">
               <label>Corredor *</label>
-              <input type="text" placeholder="Ex: A3" required />
+              <input type="text" name="corredor" placeholder="Ex: A3" required />
 
               <label>Lado do Corredor *</label>
-              <select required>
+              <select name="lado" required>
                 <option value="A">Lado A (Esquerda)</option>
                 <option value="B">Lado B (Direita)</option>
               </select>
 
               <label>Categoria / Produto Base *</label>
-              <input type="text" placeholder="Ex: Biscoitos Recheados" required />
+              <input type="text" name="categoriaProduto" placeholder="Ex: Biscoitos Recheados" required />
 
               <label>Peso Unitário do Produto (kg) *</label>
-              <input type="number" step="0.001" placeholder="Ex: 0.350" required />
+              <input type="number" name="pesoUnitario" step="0.001" placeholder="Ex: 0.350" required />
+
+              <label>Peso Máximo do Produto (kg) *</label>
+              <input type="number" name="pesoMaximo" step="0.1" placeholder="Ex: 25.0" required />
 
               <label>Peso Mínimo para Alerta (kg) *</label>
-              <input type="number" step="0.1" placeholder="Ex: 20.0" required />
+              <input type="number" name="pesoMinimo" step="0.1" placeholder="Ex: 20.0" required />
             </div>
 
             <div class="sensor-actions">
@@ -81,6 +85,7 @@
                   <th>Posicao</th>
                   <th>Categoria Mapeada</th>
                   <th>Peso Unitário</th>
+                  <th>Peso Máximo</th>
                   <th>Peso Mínimo</th>
                   <th>Status</th>
                   <th>Acoes</th>
@@ -92,6 +97,7 @@
                   <td>Corredor A1 - Lado A</td>
                   <td>Bebidas - Refrigerantes</td>
                   <td>0.350kg</td>
+                  <td>25kg</td>
                   <td>20kg</td>
                   <td>Online</td>
                   <td><button>Editar</button> <button>Remover</button></td>
@@ -101,6 +107,7 @@
                   <td>Corredor A1 - Lado B</td>
                   <td>Bebidas - Sucos</td>
                   <td>1.5kg</td>
+                  <td>22kg</td>
                   <td>15kg</td>
                   <td>Online</td>
                   <td><button>Editar</button> <button>Remover</button></td>
@@ -110,6 +117,7 @@
                   <td>Corredor A2 - Lado A</td>
                   <td>Limpeza - Sabão em Pó</td>
                   <td>1.0kg</td>
+                  <td>30kg</td>
                   <td>25kg</td>
                   <td>Online</td>
                   <td><button>Editar</button> <button>Remover</button></td>
@@ -119,6 +127,7 @@
                   <td>Corredor A2 - Lado B</td>
                   <td>Limpeza - Amaciante</td>
                   <td>2.0kg</td>
+                  <td>24kg</td>
                   <td>18kg</td>
                   <td>Online</td>
                   <td><button>Editar</button> <button>Remover</button></td>
