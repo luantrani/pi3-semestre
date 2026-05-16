@@ -61,3 +61,5 @@ CREATE TABLE movimentacao_estoque (
     FOREIGN KEY (id_produto) REFERENCES produtos(id),
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
+
+INSERT INTO `usuarios`(`nome`, `login`, `senha`, `nivel_acesso`) VALUES ('administrador','gpiadmin','$2y$10$dLpz.bzESR.qZWDaMaybu.zt9EFhs72TlLEQiLEPNTvkTaNXcr/dG','gerente');
