@@ -1,15 +1,21 @@
 <?php
 
 class UsuarioDAO {
+    private $conexao;
+
+    public function __construct() {
+        $this->conexao = Conexao::getConn();
+    }
+    
     public function cadastrar(Usuario $usuario) {
         try {
             // Ajustei para 'usuarios' assumindo ser o padrão
-            $sql = "INSERT INTO usuarios (nome, email, senha, nivel_acesso) 
-                    VALUES (:nome, :email, :senha, :nivelAcesso)";
+            $sql = "INSERT INTO usuarios (nome, login, senha, nivel_acesso) 
+                    VALUES (:nome, :login, :senha, :nivelAcesso)";
             
-            $stmt = Conexao::getConn()->prepare($sql);
+            $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(':nome', $usuario->getNome());
-            $stmt->bindValue(':email', $usuario->getEmail());
+            $stmt->bindValue(':login', $usuario->getlogin());
             $stmt->bindValue(':senha', $usuario->getSenha());
             $stmt->bindValue(':nivelAcesso', $usuario->getNivelAcesso());
             
@@ -19,16 +25,16 @@ class UsuarioDAO {
         }
     }
 
-    public function buscarPorEmail($email) {
+    public function buscarPorlogin($login) {
         try {
-            $sql = "SELECT * FROM usuarios WHERE email = :email";
-            $stmt = Conexao::getConn()->prepare($sql);
-            $stmt->bindValue(':email', $email);
+            $sql = "SELECT * FROM usuarios WHERE login = :login";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(':login', $login);
             $stmt->execute();
             
             return $stmt->fetchObject('Usuario');
         } catch (PDOException $e) {
-            throw new Exception("Erro ao buscar usuário.");
+            throw new Exception("Erro ao buscar usuário. " . $e->getMessage());
         }
     }
 }

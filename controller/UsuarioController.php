@@ -5,12 +5,12 @@ class UsuarioController {
     public function cadastrar() {
         try {
             $nome = $_POST['nome'];
-            $email = $_POST['email'];
+            $login = $_POST['login'];
             $senha = $_POST['senha'];
             $nivelAcesso = $_POST['nivelAcesso'];
 
             $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-            $usuario = new Usuario($nome, $email, $senhaHash, $nivelAcesso);
+            $usuario = new Usuario($nome, $login, $senhaHash, $nivelAcesso);
             $usuarioDAO = new UsuarioDAO();
             $sucesso = $usuarioDAO->cadastrar($usuario);
             header("Location: index.php?status=sucesso");
@@ -22,11 +22,11 @@ class UsuarioController {
 
     public function login() {
         try {
-            $email = $_POST['email'];
+            $login = $_POST['login'];
             $senha = $_POST['senha'];
-
+            
             $usuarioDAO = new UsuarioDAO();
-            $usuario = $usuarioDAO->buscarPorEmail($email);
+            $usuario = $usuarioDAO->buscarPorlogin($login);
 
             if ($usuario && password_verify($senha, $usuario->getSenha())) {
                 session_start();
@@ -35,10 +35,10 @@ class UsuarioController {
                     'nome' => $usuario->getNome(),
                     'nivelAcesso' => $usuario->getNivelAcesso()
                 ];
-                header("Location: home.php");
+                header("Location: view/home.html");
                 exit;
             } else {
-                echo "Email ou senha inválidos. Tente novamente.";
+                echo "login ou senha inválidos. Tente novamente.";
             }
         } catch (Exception $e) {
             echo "Ops! Tivemos um problema ao processar seu login. Tente novamente mais tarde.";

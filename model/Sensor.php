@@ -1,23 +1,27 @@
 <?php
 
 class Sensor {
-    public $id;
-    public $localizacao;
-    public $pesoAtual;
-    public $capacidadeMaxima;
-    public $produto; // Objeto da classe Produto
+    private $id;
+    private $corredor;
+    private $lado; // 'esquerdo' ou 'direito'
+    private $pesoAtual;
+    private $capacidadeMaxima;
+    private $minimoReposicao; // Peso mínimo para acionar reposição
+    private $produto; // Objeto da classe Produto
 
-    public function __construct($id, $localizacao, $capacidadeMaxima, Produto $produto) {
+    public function __construct($id, $corredor, $lado, $capacidadeMaxima, $minimoReposicao, Produto $produto) {
         $this->id = $id;
-        $this->localizacao = $localizacao;
+        $this->corredor = $corredor;
+        $this->lado = $lado;
         $this->capacidadeMaxima = $capacidadeMaxima;
+        $this->minimoReposicao = $minimoReposicao;
         $this->produto = $produto;
     }
 
     // Calcula a quantidade de itens baseado no peso
     public function getQuantidadeAtual() {
-        if ($this->produto->pesoUnitario <= 0) return 0;
-        return floor($this->pesoAtual / $this->produto->pesoUnitario);
+        if ($this->produto->getPesoUnitario() <= 0) return 0;
+        return floor($this->pesoAtual / $this->produto->getPesoUnitario());
     }
 
     // O cálculo da porcentagem que você pediu
@@ -29,6 +33,53 @@ class Sensor {
 
     // Verifica se precisa de reposição
     public function precisaRepoiscao() {
-        return $this->getQuantidadeAtual() <= $this->produto->estoqueMinimo;
+        return $this->getQuantidadeAtual() <= $this->minimoReposicao;
+    }
+
+    // Getters e setters
+    public function getId() {
+        return $this->id;
+    }
+
+    public function getCorredor() {
+        return $this->corredor;
+    }
+    public function setCorredor($corredor) {
+        $this->corredor = $corredor;
+    }
+
+    public function getLado() {
+        return $this->lado;
+    }
+    public function setLado($lado) {
+        $this->lado = $lado;
+    }
+
+    public function getPesoAtual() {
+        return $this->pesoAtual;
+    }
+    public function setPesoAtual($pesoAtual) {
+        $this->pesoAtual = $pesoAtual;
+    }
+
+    public function getCapacidadeMaxima() {
+        return $this->capacidadeMaxima;
+    }
+    public function setCapacidadeMaxima($capacidadeMaxima) {
+        $this->capacidadeMaxima = $capacidadeMaxima;
+    }
+
+    public function getMinimoReposicao() {
+        return $this->minimoReposicao;
+    }
+    public function setMinimoReposicao($minimoReposicao) {
+        $this->minimoReposicao = $minimoReposicao;
+    }
+
+    public function getProduto() {
+        return $this->produto;
+    }
+    public function setProduto(Produto $produto) {
+        $this->produto = $produto;
     }
 }

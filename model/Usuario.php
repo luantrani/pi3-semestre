@@ -3,16 +3,10 @@
 class Usuario {
     private $id;
     private $nome;
-    private $email;
+    private $login;
     private $senha;
     private $nivelAcesso; // 'gerente' ou 'repositor'
 
-    public function __construct($nome, $email, $senha, $nivelAcesso) {
-        $this->nome = $nome;
-        $this->email = $email;
-        $this->senha = $senha;
-        $this->nivelAcesso = $nivelAcesso;
-    }
 
     public function podeConfigurarSensores() {
         return $this->nivelAcesso === 'gerente';
@@ -31,12 +25,12 @@ class Usuario {
         $this->nome = $nome;
     }
 
-    public function getEmail() {
-        return $this->email;
+    public function getlogin() {
+        return $this->login;
     }
 
-    public function setEmail($email) {
-        $this->email = $email;
+    public function setlogin($login) {
+        $this->login = $login;
     }
 
     public function getSenha() {
