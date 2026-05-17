@@ -9,7 +9,20 @@
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand">GPI</div>
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <img
+            class="brand-logo-img"
+            src="logo.jpeg"
+            alt="Logo GPI"
+          />
+        </div>
+
+        <div class="brand-text">
+          <span>GPI</span>
+          <small>Gestão de Prateleiras Inteligente</small>
+        </div>
+      </div>
       <nav class="menu">
         <a class="menu-item active" href="home.html">Visao Geral</a>
         <a class="menu-item" href="config-iot.html">Configuracoes IoT</a>
@@ -26,11 +39,13 @@
 
     <main class="content">
       <header class="header">
-        <h1>Painel de Monitoramento</h1>
+        <div>
+          <h1>Painel de Monitoramento</h1>
+        </div>
         <div class="header-actions">
+          <a class="button-link" href="relatorios.html">Ver Relatórios</a>
         </div>
       </header>
-
       <section>
         <section class="kpis">
           <article class="kpi-card">
