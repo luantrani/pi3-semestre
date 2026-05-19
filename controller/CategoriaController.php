@@ -10,14 +10,15 @@ class CategoriaController {
                 throw new Exception('Nome da categoria é obrigatório.');
             }
 
-            $categoria = new Categoria(null, $nome);
+            $categoria = new Categoria();
+            $categoria->setNome($nome);
             $categoriaDAO = new CategoriaDAO();
             $categoriaDAO->inserir($categoria);
 
-            header('Location: view/cadastro-categoria.php?status=sucesso');
+            header('Location: __DIR__ . "/../view/cadastro-categoria.php?status=sucesso"');
             exit;
         } catch (Exception $e) {
-            header('Location: view/cadastro-categoria.php?status=erro');
+            header('Location: __DIR__ . "/../view/cadastro-categoria.php?status=erro"');
             exit;
         }
     }
