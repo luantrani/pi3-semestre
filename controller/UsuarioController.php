@@ -37,13 +37,12 @@ class UsuarioController {
             
             $usuarioDAO = new UsuarioDAO();
             $usuario = $usuarioDAO->buscarPorlogin($login);
-
             if ($usuario && password_verify($senha, $usuario->getSenha())) {
                 session_start();
                 $_SESSION['usuario'] = [
                     'id' => $usuario->getId(),
                     'nome' => $usuario->getNome(),
-                    'nivelAcesso' => $usuario->getNivelAcesso()
+                    'nivel_acesso' => $usuario->getNivelAcesso()
                 ];
                 header("Location: view/home.html");
                 exit;

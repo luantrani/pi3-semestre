@@ -10,13 +10,13 @@ class UsuarioDAO {
     public function cadastrar(Usuario $usuario) {
         try {
             $sql = "INSERT INTO usuarios (nome, login, senha, nivel_acesso) 
-                    VALUES (:nome, :login, :senha, :nivelAcesso)";
+                    VALUES (:nome, :login, :senha, :nivel_acesso)";
             
             $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(':nome', $usuario->getNome());
             $stmt->bindValue(':login', $usuario->getlogin());
             $stmt->bindValue(':senha', $usuario->getSenha());
-            $stmt->bindValue(':nivelAcesso', $usuario->getNivelAcesso());
+            $stmt->bindValue(':nivel_acesso', $usuario->getNivelAcesso());
             
             return $stmt->execute();
         } catch (PDOException $e) {
