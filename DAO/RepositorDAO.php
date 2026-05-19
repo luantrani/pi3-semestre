@@ -13,14 +13,18 @@ class RepositorDAO{
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-        public function cadastrarRepositor($nome, $login, $senha) {
-            try {
-                $sql = "INSERT INTO repositores (nome, login, senha) VALUES (?, ?, ?)";
-                $stmt = $this->conexao->prepare($sql);
-                $stmt->execute([$nome, $login, $senha]);
-                return true;
-            } catch (PDOException $e) {
-                throw new Exception("Erro ao cadastrar repositor no banco de dados." . $e->getMessage());
-            }
+    public function cadastrarRepositor(Repositor $repositor) {
+        try {
+            $sql = "INSERT INTO repositores (nome, login, senha) VALUES (?, ?, ?)";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->execute([
+                $repositor->getNome(),
+                $repositor->getLogin(),
+                $repositor->getSenha()
+            ]);
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao cadastrar repositor no banco de dados." . $e->getMessage());
         }
+    }
 }

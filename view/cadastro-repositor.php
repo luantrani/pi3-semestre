@@ -45,7 +45,7 @@
           </div>
         <?php endif; ?>
 
-        <form class="register-form" action="../roteador.php?controller=Usuario&action=cadastrar" method="POST">
+        <form class="register-form" action="roteador.php?controller=RepositorCadastro&action=cadastrar" method="POST">
           <div class="form-grid">
             <label>
               Nome completo
