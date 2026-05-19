@@ -12,14 +12,15 @@
     <div class="row g-3">
       <aside class="sidebar col-12 col-lg-3">
         <div class="brand">GPI</div>
-        <nav class="menu nav flex-column">
-          <a class="menu-item nav-link" href="home.html">Visao Geral</a>
-          <a class="menu-item nav-link" href="config-iot.html">Configuracoes IoT</a>
-          <a class="menu-item nav-link" href="relatorios.html">Relatorios</a>
-          <a class="menu-item active nav-link" href="repositor.html">Repositor</a>
-          <a class="menu-item nav-link" href="cadastro-repositor.php">Cadastro Repositor</a>
-          <a class="menu-item nav-link" href="cadastro-categoria.php">Cadastro Categoria</a>
-        </nav>
+        <nav class="menu">
+        <a class="menu-item" href="home.php">Visao Geral</a>
+        <a class="menu-item" href="config-iot.php">Configuracoes IoT</a>
+        <a class="menu-item" href="relatorios.php">Relatorios</a>
+        <a class="menu-item active" href="repositor.php">Repositor</a>
+        <a class="menu-item" href="cadastro-produto.php">Cadastro Produto</a>
+        <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
+        <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
+      </nav>
         <div class="hub-card mt-3">
           <strong>Hub Central</strong>
           <p>Sistema IoT online. <span>4</span> sensores ativos.</p>

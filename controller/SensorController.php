@@ -9,7 +9,7 @@ class SensorController {
         $this->produtoDAO = new ProdutoDAO();
     }
 
-    public function cadastrarSensor($corredor, $lado, $capacidadeMaxima, $minimoReposicao, $idProduto) {
+    public function cadastrarSensor($id, $nome, $corredor, $lado, $capacidadeMaxima, $minimoReposicao, $idProduto) {
        try {
         $produto = $this->produtoDAO->buscarPorId($idProduto);
         if (!$produto) {

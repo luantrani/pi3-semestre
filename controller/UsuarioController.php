@@ -44,7 +44,7 @@ class UsuarioController {
                     'nome' => $usuario->getNome(),
                     'nivel_acesso' => $usuario->getNivelAcesso()
                 ];
-                header("Location: view/home.html");
+                header("Location: view/home.php");
                 exit;
             } else {
                 echo "login ou senha inválidos. Tente novamente.";

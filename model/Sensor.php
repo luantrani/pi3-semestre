@@ -2,15 +2,18 @@
 
 class Sensor {
     private $id;
+    private $nome;
     private $corredor;
     private $lado; // 'esquerdo' ou 'direito'
     private $pesoAtual;
     private $capacidadeMaxima;
     private $minimoReposicao; // Peso mínimo para acionar reposição
     private $produto; // Objeto da classe Produto
+    private 
 
-    public function __construct($id, $corredor, $lado, $capacidadeMaxima, $minimoReposicao, Produto $produto) {
+    public function __construct($id, $nome, $corredor, $lado, $capacidadeMaxima, $minimoReposicao, Produto $produto) {
         $this->id = $id;
+        $this->nome = $nome;
         $this->corredor = $corredor;
         $this->lado = $lado;
         $this->capacidadeMaxima = $capacidadeMaxima;
@@ -39,6 +42,13 @@ class Sensor {
     // Getters e setters
     public function getId() {
         return $this->id;
+    }
+
+    public function getNome() {
+        return $this->nome;
+    }
+    public function setNome($nome) {
+        $this->nome = $nome;
     }
 
     public function getCorredor() {

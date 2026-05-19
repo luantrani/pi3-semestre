@@ -1,3 +1,16 @@
+<?php
+// Inicia a sessão se ela já não estiver ativa
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$nivel = $_SESSION['usuario']['nivel_acesso'];
+if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
+    session_destroy();
+    header("Location: ../index.php?erro=acesso_negado&nivel=$nivel");
+    exit;
+}
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,10 +24,11 @@
     <aside class="sidebar">
       <div class="brand">GPI</div>
       <nav class="menu">
-        <a class="menu-item active" href="home.html">Visao Geral</a>
-        <a class="menu-item" href="config-iot.html">Configuracoes IoT</a>
-        <a class="menu-item" href="relatorios.html">Relatorios</a>
-        <a class="menu-item" href="repositor.html">Repositor</a>
+        <a class="menu-item active" href="home.php">Visao Geral</a>
+        <a class="menu-item" href="config-iot.php">Configuracoes IoT</a>
+        <a class="menu-item" href="relatorios.php">Relatorios</a>
+        <a class="menu-item" href="repositor.php">Repositor</a>
+        <a class="menu-item" href="cadastro-produto.php">Cadastro Produto</a>
         <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
         <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
       </nav>
