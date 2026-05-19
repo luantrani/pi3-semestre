@@ -15,14 +15,14 @@ class UsuarioController {
             $sucesso = $usuarioDAO->cadastrar($usuario);
 
             if ($nivelAcesso === 'repositor') {
-                header('Location: view/cadastro-repositor.php?status=sucesso');
+                header('Location: __DIR__ . "/../roteador.php?controller=Repositor&action=index&status=sucesso"');
             } else {
-                header('Location: index.php?status=sucesso');
+                header('Location: __DIR__ . "/../roteador.php?controller=Home&action=index&status=sucesso"');
             }
             exit;
         } catch (Exception $e) {
             if (($nivelAcesso ?? '') === 'repositor') {
-                header('Location: view/cadastro-repositor.php?status=erro');
+                header('Location: __DIR__ . "/../roteador.php?controller=Repositor&action=index&status=erro"');
             } else {
                 echo "Ops! Tivemos um problema ao processar seu cadastro. Tente novamente mais tarde.";
             }
@@ -44,7 +44,7 @@ class UsuarioController {
                     'nome' => $usuario->getNome(),
                     'nivel_acesso' => $usuario->getNivelAcesso()
                 ];
-                header("Location: view/home.php");
+                header("Location: __DIR__ . '/../roteador.php?controller=Home&action=index");
                 exit;
             } else {
                 echo "login ou senha inválidos. Tente novamente.";

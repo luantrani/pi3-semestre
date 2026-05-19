@@ -12,6 +12,7 @@ class ProdutoDAO {
             $sql = "INSERT INTO produtos (nome, peso_unitario, idcategoria) VALUES (?, ?, ?)";
             $stmt = $this->conexao->prepare($sql);
             $stmt->execute([$p->getNome(), $p->getPesoUnitario(), $p->getCategoria()->getId()]);
+            return true;
         } catch (PDOException $e) {
             throw new Exception("Erro ao inserir produto no banco de dados." . $e->getMessage());
         }
@@ -19,7 +20,7 @@ class ProdutoDAO {
 
     public function listarTodos() {
         try {
-            $sql = "SELECT * FROM produtos";
+            $sql = "SELECT i.*, c.nome as categoria_nome FROM produtos i inner join categorias c on i.idcategoria = c.id order by i.nome asc";
             $stmt = $this->conexao->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

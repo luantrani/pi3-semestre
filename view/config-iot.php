@@ -1,35 +1,23 @@
-<?php
-// Inicia a sessão se ela já não estiver ativa
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-$nivel = $_SESSION['usuario']['nivel_acesso'];
-if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
-    session_destroy();
-    header("Location: ../index.php?erro=acesso_negado&nivel=$nivel");
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Configurações IoT</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">GPI</div>
       <nav class="menu">
-        <a class="menu-item" href="home.php">Visao Geral</a>
-        <a class="menu-item active" href="config-iot.php">Configuracoes IoT</a>
-        <a class="menu-item" href="relatorios.php">Relatorios</a>
-        <a class="menu-item" href="repositor.php">Repositor</a>
-        <a class="menu-item" href="cadastro-produto.php">Cadastro Produto</a>
-        <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
-        <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
+        <a class="menu-item" href="roteador.php?controller=Home&action=index">Visao Geral</a>
+        <a class="menu-item active" href="roteador.php?controller=Sensor&action=index">Configuracoes IoT</a>
+        <a class="menu-item" href="roteador.php?controller=Relatorio&action=index">Relatorios</a>
+        <a class="menu-item" href="roteador.php?controller=Repositor&action=index">Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Produto&action=index">Cadastro Produto</a>
+        <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>

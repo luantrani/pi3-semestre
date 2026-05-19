@@ -1,33 +1,11 @@
-<?php
-require_once __DIR__ . '/../DAO/Conexao.php';
-require_once __DIR__ . '/../DAO/CategoriaDAO.php';
-// Se tiver o ProdutoDAO para listar os produtos na tabela de baixo, descomente a linha abaixo:
-// require_once __DIR__ . '/../DAO/ProdutoDAO.php';
-
-$categoriaDAO = new CategoriaDAO();
-$categorias = [];
-$produtos = []; // Array de produtos (popular via banco de dados se necessário)
-$status = $_GET['status'] ?? null;
-
-try {
-    $categorias = $categoriaDAO->listar();
-    
-    // Se quiser listar os produtos na tabela de baixo, descomente as linhas abaixo:
-    // $produtoDAO = new ProdutoDAO();
-    // $produtos = $produtoDAO->listar(); 
-} catch (Exception $e) {
-    $status = 'erro_listar';
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Cadastro de Produtos</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
   <style>
-    /* Estilos rápidos para os botões de ação na tabela */
     .btn-action {
       padding: 4px 8px;
       border-radius: 4px;
@@ -56,13 +34,13 @@ try {
     <aside class="sidebar">
       <div class="brand">GPI</div>
       <nav class="menu">
-        <a class="menu-item" href="home.php">Visao Geral</a>
-        <a class="menu-item" href="config-iot.php">Configuracoes IoT</a>
-        <a class="menu-item" href="relatorios.php">Relatorios</a>
-        <a class="menu-item" href="repositor.php">Repositor</a>
-        <a class="menu-item active" href="cadastro-produto.php">Cadastro Produto</a>
-        <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
-        <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
+        <a class="menu-item" href="roteador.php?controller=Home&action=index">Visao Geral</a>
+        <a class="menu-item" href="roteador.php?controller=Sensor&action=index">Configuracoes IoT</a>
+        <a class="menu-item" href="roteador.php?controller=Relatorio&action=index">Relatorios</a>
+        <a class="menu-item" href="roteador.php?controller=Repositor&action=index">Repositor</a>
+        <a class="menu-item active" href="roteador.php?controller=Produto&action=index">Cadastro Produto</a>
+        <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>
@@ -90,7 +68,7 @@ try {
           </div>
         <?php endif; ?>
 
-        <form class="register-form" action="../roteador.php?controller=Produto&action=cadastrar" method="POST">
+        <form class="register-form" action="roteador.php?controller=Produto&action=cadastrar" method="POST">
           <div class="form-grid" style="display: flex; flex-direction: column; gap: 15px;">
             
             <label class="full-width">
@@ -149,7 +127,7 @@ try {
                     <td style="text-align: center;">
                       <!-- Botões direcionando para o Roteador passando o ID do produto -->
                       <a href="editar-produto.php?id=<?= $produto['id'] ?>" class="btn-action btn-edit">Alterar</a>
-                      <a href="../roteador.php?controller=Produto&action=excluir&id=<?= $produto['id'] ?>" class="btn-action btn-delete" onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</a>
+                      <a href="roteador.php?controller=Produto&action=excluir&id=<?= $produto['id'] ?>" class="btn-action btn-delete" onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</a>
                     </td>
                   </tr>
                 <?php endforeach; ?>

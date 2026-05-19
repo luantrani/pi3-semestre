@@ -1,37 +1,23 @@
-<?php
-require_once __DIR__ . '/../DAO/Conexao.php';
-require_once __DIR__ . '/../DAO/CategoriaDAO.php';
-
-$categoriaDAO = new CategoriaDAO();
-$categorias = [];
-$status = $_GET['status'] ?? null;
-
-try {
-    $categorias = $categoriaDAO->listar();
-} catch (Exception $e) {
-    $status = 'erro_listar';
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Cadastro de Categorias</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">GPI</div>
       <nav class="menu">
-        <a class="menu-item" href="home.php">Visao Geral</a>
-        <a class="menu-item" href="config-iot.php">Configuracoes IoT</a>
-        <a class="menu-item" href="relatorios.php">Relatorios</a>
-        <a class="menu-item" href="repositor.php">Repositor</a>
-        <a class="menu-item" href="cadastro-produto.php">Cadastro Produto</a>
-        <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
-        <a class="menu-item active" href="cadastro-categoria.php">Cadastro Categoria</a>
+        <a class="menu-item" href="roteador.php?controller=Home&action=index">Visao Geral</a>
+        <a class="menu-item" href="roteador.php?controller=Sensor&action=index">Configuracoes IoT</a>
+        <a class="menu-item" href="roteador.php?controller=Relatorio&action=index">Relatorios</a>
+        <a class="menu-item" href="roteador.php?controller=Repositor&action=index">Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Produto&action=index">Cadastro Produto</a>
+        <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
+        <a class="menu-item active" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
       <div class="hub-card">
         <strong>Hub Central</strong>
@@ -59,7 +45,7 @@ try {
           </div>
         <?php endif; ?>
 
-        <form class="register-form" action="../roteador.php?controller=Categoria&action=cadastrar" method="POST">
+        <form class="register-form" action="roteador.php?controller=Categoria&action=cadastrar" method="POST">
           <div class="form-grid">
             <label class="full-width">
               Nome da Categoria

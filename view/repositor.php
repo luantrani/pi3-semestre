@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Repositor</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container-fluid py-3">
@@ -13,13 +13,13 @@
       <aside class="sidebar col-12 col-lg-3">
         <div class="brand">GPI</div>
         <nav class="menu">
-        <a class="menu-item" href="home.php">Visao Geral</a>
-        <a class="menu-item" href="config-iot.php">Configuracoes IoT</a>
-        <a class="menu-item" href="relatorios.php">Relatorios</a>
-        <a class="menu-item active" href="repositor.php">Repositor</a>
-        <a class="menu-item" href="cadastro-produto.php">Cadastro Produto</a>
-        <a class="menu-item" href="cadastro-repositor.php">Cadastro Repositor</a>
-        <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
+        <a class="menu-item" href="roteador.php?controller=Home&action=index">Visao Geral</a>
+        <a class="menu-item" href="roteador.php?controller=Sensor&action=index">Configuracoes IoT</a>
+        <a class="menu-item" href="roteador.php?controller=Relatorio&action=index">Relatorios</a>
+        <a class="menu-item active" href="roteador.php?controller=Repositor&action=index">Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Produto&action=index">Cadastro Produto</a>
+        <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
         <div class="hub-card mt-3">
           <strong>Hub Central</strong>
@@ -31,7 +31,7 @@
         <header class="header">
           <h1>Painel do Repositor</h1>
           <div class="header-actions">
-            <a class="button-link" href="cadastro-repositor.php">Cadastrar Repositor</a>
+            <a class="button-link" href="roteador.php?controller=RepositorCadastro&action=index">Cadastrar Repositor</a>
           </div>
         </header>
 

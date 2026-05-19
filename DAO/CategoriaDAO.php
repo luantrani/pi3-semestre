@@ -7,7 +7,7 @@ class CategoriaDAO {
         $this->conexao = Conexao::getConn();
     }
 
-    public function listar() {
+    public function listarTodos() {
         $sql = "SELECT * FROM categorias ORDER BY nome ASC";
         $stmt = $this->conexao->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
