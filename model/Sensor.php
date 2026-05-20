@@ -2,21 +2,14 @@
 
 class Sensor {
     private $id;
+    private $nome;
     private $corredor;
     private $lado; // 'esquerdo' ou 'direito'
     private $pesoAtual;
     private $capacidadeMaxima;
     private $minimoReposicao; // Peso mínimo para acionar reposição
     private $produto; // Objeto da classe Produto
-
-    public function __construct($id, $corredor, $lado, $capacidadeMaxima, $minimoReposicao, Produto $produto) {
-        $this->id = $id;
-        $this->corredor = $corredor;
-        $this->lado = $lado;
-        $this->capacidadeMaxima = $capacidadeMaxima;
-        $this->minimoReposicao = $minimoReposicao;
-        $this->produto = $produto;
-    }
+    private $status; 
 
     // Calcula a quantidade de itens baseado no peso
     public function getQuantidadeAtual() {
@@ -39,6 +32,17 @@ class Sensor {
     // Getters e setters
     public function getId() {
         return $this->id;
+    }
+    
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    public function getNome() {
+        return $this->nome;
+    }
+    public function setNome($nome) {
+        $this->nome = $nome;
     }
 
     public function getCorredor() {
@@ -81,5 +85,19 @@ class Sensor {
     }
     public function setProduto(Produto $produto) {
         $this->produto = $produto;
+    }
+
+    public function getStatus() {
+        if ($this->precisaRepoiscao()) {
+            return 'vazio';
+        } elseif ($this->getPorcentagemEstoque() >= 80) {
+            return 'cheio';
+        } else {
+            return 'medio';
+        }
+    }
+
+    public function setStatus($status) {
+        $this->status = $status;
     }
 }

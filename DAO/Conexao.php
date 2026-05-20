@@ -4,8 +4,13 @@ class Conexao {
 
     public static function getConn() {
         if (!isset(self::$instance)) {
-            self::$instance = new PDO("mysql:host=localhost;dbname=gpi;charset=utf8", "root", "");
-            self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            try {
+                self::$instance = new PDO("mysql:host=localhost;port=3307;dbname=gpi;charset=utf8", "root", "");
+                self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                
+            } catch (PDOException $e) {
+                die("Erro de conexão com o banco de dados: " . $e->getMessage());
+            }
         }
         return self::$instance;
     }

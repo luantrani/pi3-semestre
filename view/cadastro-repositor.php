@@ -1,38 +1,26 @@
-<?php
-require_once __DIR__ . '/../DAO/Conexao.php';
-require_once __DIR__ . '/../DAO/UsuarioDAO.php';
-require_once __DIR__ . '/../model/Usuario.php';
-
-$usuarioDAO = new UsuarioDAO();
-$status = $_GET['status'] ?? null;
-$repositores = [];
-
-try {
-    $repositores = $usuarioDAO->listarPorNivelAcesso('repositor');
-} catch (Exception $e) {
-    $status = 'erro_listar';
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Cadastro Repositor</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">GPI</div>
       <nav class="menu">
-        <a class="menu-item" href="home.html">Visao Geral</a>
-        <a class="menu-item" href="config-iot.html">Configuracoes IoT</a>
-        <a class="menu-item" href="relatorios.html">Relatorios</a>
-        <a class="menu-item" href="repositor.html">Repositor</a>
-        <a class="menu-item active" href="cadastro-repositor.php">Cadastro Repositor</a>
-        <a class="menu-item" href="cadastro-categoria.php">Cadastro Categoria</a>
+        <a class="menu-item" href="roteador.php?controller=Home&action=index">Visao Geral</a>
+        <a class="menu-item" href="roteador.php?controller=Sensor&action=index">Configuracoes IoT</a>
+        <a class="menu-item" href="roteador.php?controller=Relatorio&action=index">Relatorios</a>
+        <a class="menu-item" href="roteador.php?controller=Repositor&action=index">Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Produto&action=index">Cadastro Produto</a>
+        <a class="menu-item active" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
+      <button class="btn btn-danger" onclick="location.href='roteador.php?controller=Usuario&action=logout'">Sair</button>
       <div class="hub-card">
         <strong>Hub Central</strong>
         <p>Sistema IoT online. <span>4</span> sensores ativos.</p>
@@ -59,7 +47,7 @@ try {
           </div>
         <?php endif; ?>
 
-        <form class="register-form" action="../roteador.php?controller=Usuario&action=cadastrar" method="POST">
+        <form class="register-form" action="roteador.php?controller=RepositorCadastro&action=cadastrar" method="POST">
           <div class="form-grid">
             <label>
               Nome completo

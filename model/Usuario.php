@@ -5,18 +5,10 @@ class Usuario {
     private $nome;
     private $login;
     private $senha;
-    private $nivelAcesso; // 'gerente' ou 'repositor'
-
-    public function __construct($id = null, $nome = null, $login = null, $senha = null, $nivelAcesso = 'repositor') {
-        $this->id = $id;
-        $this->nome = $nome;
-        $this->login = $login;
-        $this->senha = $senha;
-        $this->nivelAcesso = $nivelAcesso;
-    }
+    private $nivel_acesso; // 'gerente' ou 'repositor'
 
     public function podeConfigurarSensores() {
-        return $this->nivelAcesso === 'gerente';
+        return $this->nivel_acesso === 'gerente';
     }
 
     // Getters e setters
@@ -49,10 +41,10 @@ class Usuario {
     }
 
     public function getNivelAcesso() {
-        return $this->nivelAcesso;
+        return $this->nivel_acesso;
     }
 
-    public function setNivelAcesso($nivelAcesso) {
-        $this->nivelAcesso = $nivelAcesso;
+    public function setNivelAcesso($nivel_acesso) {
+        $this->nivel_acesso = $nivel_acesso;
     }
 }

@@ -5,16 +5,13 @@ class Produto {
     private $pesoUnitario;
     private $categoria;
 
-    public function __construct($id, $nome, $pesoUnitario, $categoria) {
-        $this->id = $id;
-        $this->nome = $nome;
-        $this->pesoUnitario = $pesoUnitario;
-        $this->categoria = $categoria;
-    }
-
     // Getters
     public function getId() {
         return $this->id;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
     }
 
     public function getNome() {

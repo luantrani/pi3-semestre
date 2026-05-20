@@ -5,21 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Repositor</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container-fluid py-3">
     <div class="row g-3">
       <aside class="sidebar col-12 col-lg-3">
         <div class="brand">GPI</div>
-        <nav class="menu nav flex-column">
-          <a class="menu-item nav-link" href="home.html">Visao Geral</a>
-          <a class="menu-item nav-link" href="config-iot.html">Configuracoes IoT</a>
-          <a class="menu-item nav-link" href="relatorios.html">Relatorios</a>
-          <a class="menu-item active nav-link" href="repositor.html">Repositor</a>
-          <a class="menu-item nav-link" href="cadastro-repositor.php">Cadastro Repositor</a>
-          <a class="menu-item nav-link" href="cadastro-categoria.php">Cadastro Categoria</a>
-        </nav>
+        <nav class="menu">
+        <a class="menu-item" href="roteador.php?controller=Home&action=index">Visao Geral</a>
+        <a class="menu-item" href="roteador.php?controller=Sensor&action=index">Configuracoes IoT</a>
+        <a class="menu-item" href="roteador.php?controller=Relatorio&action=index">Relatorios</a>
+        <a class="menu-item active" href="roteador.php?controller=Repositor&action=index">Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Produto&action=index">Cadastro Produto</a>
+        <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
+        <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
+      </nav>
+      <button class="btn btn-danger" onclick="location.href='roteador.php?controller=Usuario&action=logout'">Sair</button>
         <div class="hub-card mt-3">
           <strong>Hub Central</strong>
           <p>Sistema IoT online. <span>4</span> sensores ativos.</p>
@@ -30,7 +32,7 @@
         <header class="header">
           <h1>Painel do Repositor</h1>
           <div class="header-actions">
-            <a class="button-link" href="cadastro-repositor.php">Cadastrar Repositor</a>
+            <a class="button-link" href="roteador.php?controller=RepositorCadastro&action=index">Cadastrar Repositor</a>
           </div>
         </header>
 

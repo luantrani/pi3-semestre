@@ -7,7 +7,7 @@ class CategoriaDAO {
         $this->conexao = Conexao::getConn();
     }
 
-    public function listar() {
+    public function listarTodos() {
         $sql = "SELECT * FROM categorias ORDER BY nome ASC";
         $stmt = $this->conexao->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -21,6 +21,24 @@ class CategoriaDAO {
             return $stmt->execute();
         } catch (PDOException $e) {
             throw new Exception("Erro ao inserir categoria no banco de dados. " . $e->getMessage());
+        }
+    }
+
+    public function buscarPorId($id) {
+        try {
+            $sql = "SELECT * FROM categorias WHERE id = ?";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->execute([$id]);
+            $dados = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$dados) {
+                return null;
+            }
+            $categoria = new Categoria();
+            $categoria->setId($dados['id']);
+            $categoria->setNome($dados['nome']);
+            return $categoria;
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao buscar categoria. " . $e->getMessage());
         }
     }
 }
