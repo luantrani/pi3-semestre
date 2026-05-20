@@ -31,6 +31,7 @@ CREATE TABLE sensor (
     minimoReposicao INT NOT NULL DEFAULT 5,
     ultima_atualizacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     id_produto INT NOT NULL,
+    status VARCHAR(20) NOT NULL,
     FOREIGN KEY (id_produto) REFERENCES produtos(id)
 );
 

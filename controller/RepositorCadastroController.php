@@ -1,12 +1,31 @@
 <?php
 
 class RepositorCadastroController {
-    private $repositorDAO;
+    private $usuarioDAO;
 
     public function __construct() {
-        $this->repositorDAO = new RepositorDAO();
+        $this->usuarioDAO = new UsuarioDAO();
     }
-    
+
+    public function index() {
+        try {
+            $status = $_GET['status'] ?? null;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $nivel = $_SESSION['usuario']['nivel_acesso'];
+        if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
+            session_destroy();
+            header("Location: index.php?erro=acesso_negado");
+            exit;
+        }
+            $repositores = $this->usuarioDAO->listarRepositores();
+            require_once __DIR__ . '/../view/cadastro-repositor.php';
+        } catch (Exception $e) {
+            die("Erro ao carregar repositores: " . $e->getMessage());
+        }
+    }
+
     public function cadastrar() {
         try {
             $nome = $_POST['nome'] ?? null;
@@ -17,12 +36,13 @@ class RepositorCadastroController {
                 header("Location: roteador.php?controller=RepositorCadastro&action=index&status=erro_cadastro");
                 exit;
             }
-            $repositor = new Repositor();
-            $repositor->setNome($nome);
-            $repositor->setLogin($login);
-            $repositor->setSenha($senhahash);
+            $usuario = new Usuario();
+            $usuario->setNome($nome);
+            $usuario->setLogin($login);
+            $usuario->setSenha($senhahash);
+            $usuario->setNivelAcesso('repositor');
 
-            $this->repositorDAO->cadastrarRepositor($repositor);
+            $this->usuarioDAO->cadastrar($usuario);
             header("Location: roteador.php?controller=RepositorCadastro&action=index&status=sucesso");
         } catch (Exception $e) {
             die("Erro ao cadastrar repositor: " . $e->getMessage());

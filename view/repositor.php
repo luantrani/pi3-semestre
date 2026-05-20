@@ -21,6 +21,7 @@
         <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
         <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
+      <button class="btn btn-danger" onclick="location.href='roteador.php?controller=Usuario&action=logout'">Sair</button>
         <div class="hub-card mt-3">
           <strong>Hub Central</strong>
           <p>Sistema IoT online. <span>4</span> sensores ativos.</p>

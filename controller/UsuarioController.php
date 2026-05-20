@@ -16,7 +16,7 @@ class UsuarioController {
         $nivel = $_SESSION['usuario']['nivel_acesso'];
         if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
             session_destroy();
-            header("Location: ../index.php?erro=acesso_negado");
+            header("Location: index.php?erro=acesso_negado");
             exit;
         }
             $repositores = $this->usuarioDAO->listarRepositores();
@@ -61,7 +61,11 @@ class UsuarioController {
                     'nome' => $usuario->getNome(),
                     'nivel_acesso' => $usuario->getNivelAcesso()
                 ];
-                header("Location: __DIR__ . '/../roteador.php?controller=Home&action=index");
+                if ($usuario->getNivelAcesso() === 'gerente') {
+                    header("Location: __DIR__ . '/../roteador.php?controller=Home&action=index");
+                } else {
+                    header("Location: __DIR__ . '/../roteador.php?controller=Repositor&action=index");
+                }
                 exit;
             } else {
                 echo "login ou senha inválidos. Tente novamente.";
@@ -69,5 +73,12 @@ class UsuarioController {
         } catch (Exception $e) {
             echo "Ops! Tivemos um problema ao processar seu login. Tente novamente mais tarde.";
         }
+    }
+
+    public function logout() {
+        session_start();
+        session_destroy();
+        header("Location: index.php");
+        exit;
     }
 }

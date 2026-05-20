@@ -24,11 +24,10 @@ class UsuarioDAO {
         }
     }
 
-    public function listarPorNivelAcesso($nivelAcesso) {
+    public function listarRepositores() {
         try {
-            $sql = "SELECT id, nome, login, nivel_acesso FROM usuarios WHERE nivel_acesso = :nivelAcesso ORDER BY nome ASC";
+            $sql = "SELECT id, nome, login, nivel_acesso FROM usuarios WHERE nivel_acesso = 'repositor' ORDER BY nome ASC";
             $stmt = $this->conexao->prepare($sql);
-            $stmt->bindValue(':nivelAcesso', $nivelAcesso);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

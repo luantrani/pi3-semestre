@@ -33,7 +33,18 @@ class ProdutoDAO {
             $sql = "SELECT * FROM produtos WHERE id = ?";
             $stmt = $this->conexao->prepare($sql);
             $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $dados = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$dados) {
+                return null;
+            }
+            $categoriaDAO = new CategoriaDAO();
+            $categoria = $categoriaDAO->buscarPorId($dados['idcategoria']);
+            $produto = new Produto();
+            $produto->setId($dados['id']);
+            $produto->setNome($dados['nome']);
+            $produto->setPesoUnitario($dados['peso_unitario']);
+            $produto->setCategoria($categoria);
+            return $produto;
         } catch (PDOException $e) {
             throw new Exception("Erro ao buscar produto. " . $e->getMessage());
         }

@@ -19,7 +19,7 @@ class RelatorioController {
         $nivel = $_SESSION['usuario']['nivel_acesso'];
         if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
             session_destroy();
-            header("Location: ../index.php?erro=acesso_negado");
+            header("Location: index.php?erro=acesso_negado");
             exit;
         }
             //$sensores = $this->sensorDAO->listarTodos();

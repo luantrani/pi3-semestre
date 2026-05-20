@@ -1,13 +1,12 @@
 <?php
 
 class ProdutoController {
-    // Removemos os objetos que não precisam ficar fixos na classe inteira
     private $produtoDAO;
     private $categoriaDAO;
 
     public function __construct() {
         $this->produtoDAO = new ProdutoDAO();
-        $this->categoriaDAO = new CategoriaDAO(); // Conversa direto com o DAO de categorias!
+        $this->categoriaDAO = new CategoriaDAO();
     }
 
     public function cadastrar() {
@@ -19,7 +18,6 @@ class ProdutoController {
 
             if ($nome && $pesoUnitario !== false && $categoriaId) {
                 try {
-                    // Instanciamos as entidades apenas no momento do cadastro (escopo local)
                     $categoria = new Categoria();
                     $categoria->setId($categoriaId); 
 
@@ -58,7 +56,6 @@ class ProdutoController {
             session_start();
         }
         
-        // Correção de segurança: Primeiro verifica se existe, depois lê o nível
         if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
             session_destroy();
             header("Location: index.php?erro=acesso_negado");
@@ -70,7 +67,7 @@ class ProdutoController {
 
         try {
             $categorias = $this->categoriaDAO->listarTodos(); 
-            $produtos   = $this->listar();
+            $produtos = $this->listar();
         } catch (Exception $e) {
             $status = 'erro_listar';
             $categorias = [];

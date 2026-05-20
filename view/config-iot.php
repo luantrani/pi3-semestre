@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPI - Configurações IoT</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -19,6 +20,7 @@
         <a class="menu-item" href="roteador.php?controller=RepositorCadastro&action=index">Cadastro Repositor</a>
         <a class="menu-item" href="roteador.php?controller=Categoria&action=index">Cadastro Categoria</a>
       </nav>
+      <button class="btn btn-danger" onclick="location.href='roteador.php?controller=Usuario&action=logout'">Sair</button>
       <div class="hub-card">
         <strong>Hub Central</strong>
         <p>Sistema IoT online. <span>4</span> sensores ativos.</p>
@@ -35,7 +37,7 @@
       <section>
         <section class="card">
           <h2>Cadastrar Novo Dispositivo</h2>
-          <form class="sensor-form">
+          <form class="sensor-form" method="POST" action="roteador.php?controller=Sensor&action=cadastrarSensor">
             <div class="form-col">
               <label>Nome do Sensor *</label>
               <input type="text" name="nomeSensor" placeholder="Ex: Sensor Bebidas Frias" required />
@@ -43,8 +45,6 @@
               <label>ID do Sensor (NodeMCU/ESP32) *</label>
               <input type="text" name="idSensor" placeholder="Ex: US-1023" required />
 
-              <label>MAC Address (Opcional)</label>
-              <input type="text" name="macAddress" placeholder="00:1B:44:11:3A:B7" />
             </div>
 
             <div class="form-col">
@@ -53,21 +53,23 @@
 
               <label>Lado do Corredor *</label>
               <select name="lado" required>
-                <option value="A">Lado A (Esquerda)</option>
-                <option value="B">Lado B (Direita)</option>
+                <option value="Esquerda">Esquerda</option>
+                <option value="Direita">Direita</option>
               </select>
 
-              <label>Categoria / Produto Base *</label>
-              <input type="text" name="categoriaProduto" placeholder="Ex: Biscoitos Recheados" required />
+              <label>Produto</label>
+              <select name="id_produto">
+                <option value="">Nenhum produto vinculado</option>
+                <?php foreach ($produtos as $produto): ?>
+                  <option value="<?= $produto['id'] ?>"><?= $produto['nome'] ?></option>
+                <?php endforeach; ?>
+              </select>
 
-              <label>Peso Unitário do Produto (kg) *</label>
-              <input type="number" name="pesoUnitario" step="0.001" placeholder="Ex: 0.350" required />
-
-              <label>Peso Máximo do Produto (kg) *</label>
-              <input type="number" name="pesoMaximo" step="0.1" placeholder="Ex: 25.0" required />
+              <label>Capacidade Máxima (kg) *</label>
+              <input type="number" name="capacidadeMaxima" step="0.1" placeholder="Ex: 25.0" required />
 
               <label>Peso Mínimo para Alerta (kg) *</label>
-              <input type="number" name="pesoMinimo" step="0.1" placeholder="Ex: 20.0" required />
+              <input type="number" name="minimoReposicao" step="0.1" placeholder="Ex: 20.0" required />
             </div>
 
             <div class="sensor-actions">
@@ -93,46 +95,24 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Sensor Bebidas Frias - US-1023</td>
-                  <td>Corredor A1 - Lado A</td>
-                  <td>Bebidas - Refrigerantes</td>
-                  <td>0.350kg</td>
-                  <td>25kg</td>
-                  <td>20kg</td>
-                  <td>Online</td>
-                  <td><button>Editar</button> <button>Remover</button></td>
-                </tr>
-                <tr>
-                  <td>Sensor Sucos - US-1024</td>
-                  <td>Corredor A1 - Lado B</td>
-                  <td>Bebidas - Sucos</td>
-                  <td>1.5kg</td>
-                  <td>22kg</td>
-                  <td>15kg</td>
-                  <td>Online</td>
-                  <td><button>Editar</button> <button>Remover</button></td>
-                </tr>
-                <tr>
-                  <td>Sensor Limpeza 1 - US-1025</td>
-                  <td>Corredor A2 - Lado A</td>
-                  <td>Limpeza - Sabão em Pó</td>
-                  <td>1.0kg</td>
-                  <td>30kg</td>
-                  <td>25kg</td>
-                  <td>Online</td>
-                  <td><button>Editar</button> <button>Remover</button></td>
-                </tr>
-                <tr>
-                  <td>Sensor Limpeza 2 - US-1026</td>
-                  <td>Corredor A2 - Lado B</td>
-                  <td>Limpeza - Amaciante</td>
-                  <td>2.0kg</td>
-                  <td>24kg</td>
-                  <td>18kg</td>
-                  <td>Online</td>
-                  <td><button>Editar</button> <button>Remover</button></td>
-                </tr>
+                <?php if (empty($sensores)): ?>
+                  <tr>
+                    <td colspan="8" style="text-align: center; padding: 20px;">Nenhum sensor cadastrado. Use o formulário acima para adicionar um novo dispositivo.</td>
+                  </tr>
+                <?php else: ?>
+                  <?php foreach ($sensores as $sensor): ?>
+                    <tr>
+                      <td><?= htmlspecialchars($sensor->getNome(), ENT_QUOTES, 'UTF-8') ?> - <?= htmlspecialchars($sensor->getId(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td>Corredor <?= htmlspecialchars($sensor->getCorredor(), ENT_QUOTES, 'UTF-8') ?> - Lado <?= htmlspecialchars($sensor->getLado(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($sensor->getCategoriaNome(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($sensor->getPesoUnitario(), ENT_QUOTES, 'UTF-8') ?>kg</td>
+                      <td><?= htmlspecialchars($sensor->getCapacidadeMaxima(), ENT_QUOTES, 'UTF-8') ?>kg</td>
+                      <td><?= htmlspecialchars($sensor->getMinimoReposicao(), ENT_QUOTES, 'UTF-8') ?>kg</td>
+                      <td><?= htmlspecialchars($sensor->getStatus(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><button>Editar</button> <button>Remover</button></td>
+                    </tr>
+                  <?php endforeach; ?>
+                <?php endif; ?>
               </tbody>
             </table>
           </div>
