@@ -22,14 +22,6 @@ CREATE TABLE produtos (
     FOREIGN KEY (idcategoria) REFERENCES categorias(id)
 );
 
-CREATE TABLE repositores (
-    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nome VARCHAR(120) NOT NULL,
-    login VARCHAR(50) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL,
-    FOREIGN KEY (idcategoria) REFERENCES categorias(id)
-);
-
 CREATE TABLE sensor (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     corredor VARCHAR(120) NOT NULL,

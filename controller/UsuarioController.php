@@ -1,6 +1,30 @@
 <?php
 
 class UsuarioController {
+    private $usuarioDAO;
+
+    public function __construct() {
+        $this->usuarioDAO = new UsuarioDAO();
+    }
+
+    public function index() {
+        try {
+            $status = $_GET['status'] ?? null;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $nivel = $_SESSION['usuario']['nivel_acesso'];
+        if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
+            session_destroy();
+            header("Location: ../index.php?erro=acesso_negado");
+            exit;
+        }
+            $repositores = $this->usuarioDAO->listarRepositores();
+            require_once __DIR__ . '/../view/cadastro-repositor.php';
+        } catch (Exception $e) {
+            die("Erro ao carregar repositores: " . $e->getMessage());
+        }
+    }
 
     public function cadastrar() {
         try {
@@ -14,18 +38,11 @@ class UsuarioController {
             $usuarioDAO = new UsuarioDAO();
             $sucesso = $usuarioDAO->cadastrar($usuario);
 
-            if ($nivelAcesso === 'repositor') {
-                header('Location: __DIR__ . "/../roteador.php?controller=Repositor&action=index&status=sucesso"');
-            } else {
-                header('Location: __DIR__ . "/../roteador.php?controller=Home&action=index&status=sucesso"');
-            }
+            header('Location: __DIR__ . "/../roteador.php?controller=RepositorCadastro&action=index&status=sucesso"');
+            
             exit;
         } catch (Exception $e) {
-            if (($nivelAcesso ?? '') === 'repositor') {
-                header('Location: __DIR__ . "/../roteador.php?controller=Repositor&action=index&status=erro"');
-            } else {
-                echo "Ops! Tivemos um problema ao processar seu cadastro. Tente novamente mais tarde.";
-            }
+                header('Location: __DIR__ . "/../roteador.php?controller=RepositorCadastro&action=index&status=erro"');
             exit;
         }
     }
