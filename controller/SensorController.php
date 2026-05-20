@@ -51,6 +51,7 @@ class SensorController {
         $sensor->setMinimoReposicao($minimoReposicao);
         $sensor->setProduto($produto);
         $this->sensorDAO->inserir($sensor);
+            header("Location: roteador.php?controller=Sensor&action=index&status=sucesso");
     } catch (Exception $e) {
         throw new Exception("Erro ao cadastrar sensor: " . $e->getMessage());
     }

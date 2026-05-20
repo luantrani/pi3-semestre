@@ -84,7 +84,8 @@
             <table class="sensor-table">
               <thead>
                 <tr>
-                  <th>Nome e ID do Sensor</th>
+                  <th>ID do Sensor</th>
+                  <th>Nome</th>
                   <th>Posicao</th>
                   <th>Categoria Mapeada</th>
                   <th>Peso Unitário</th>
@@ -102,10 +103,11 @@
                 <?php else: ?>
                   <?php foreach ($sensores as $sensor): ?>
                     <tr>
-                      <td><?= htmlspecialchars($sensor->getNome(), ENT_QUOTES, 'UTF-8') ?> - <?= htmlspecialchars($sensor->getId(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($sensor->getId(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($sensor->getNome(), ENT_QUOTES, 'UTF-8') ?></td>
                       <td>Corredor <?= htmlspecialchars($sensor->getCorredor(), ENT_QUOTES, 'UTF-8') ?> - Lado <?= htmlspecialchars($sensor->getLado(), ENT_QUOTES, 'UTF-8') ?></td>
-                      <td><?= htmlspecialchars($sensor->getCategoriaNome(), ENT_QUOTES, 'UTF-8') ?></td>
-                      <td><?= htmlspecialchars($sensor->getPesoUnitario(), ENT_QUOTES, 'UTF-8') ?>kg</td>
+                      <td><?= htmlspecialchars($sensor->getProduto()->getCategoria()->getNome(), ENT_QUOTES, 'UTF-8') ?></td>
+                      <td><?= htmlspecialchars($sensor->getProduto()->getPesoUnitario(), ENT_QUOTES, 'UTF-8') ?>kg</td>
                       <td><?= htmlspecialchars($sensor->getCapacidadeMaxima(), ENT_QUOTES, 'UTF-8') ?>kg</td>
                       <td><?= htmlspecialchars($sensor->getMinimoReposicao(), ENT_QUOTES, 'UTF-8') ?>kg</td>
                       <td><?= htmlspecialchars($sensor->getStatus(), ENT_QUOTES, 'UTF-8') ?></td>

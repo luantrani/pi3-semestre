@@ -18,12 +18,13 @@ CREATE TABLE produtos (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     nome VARCHAR(120) NOT NULL,
     peso_unitario DECIMAL(10,3) NOT NULL,
-    idcategoria INT,
-    FOREIGN KEY (idcategoria) REFERENCES categorias(id)
+    idCategoria INT,
+    FOREIGN KEY (idCategoria) REFERENCES categorias(id)
 );
 
 CREATE TABLE sensor (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(120) NOT NULL,
     corredor VARCHAR(120) NOT NULL,
     lado VARCHAR(120) NOT NULL,
     pesoAtual DECIMAL(10,3) NOT NULL DEFAULT 0,

@@ -96,4 +96,8 @@ class Sensor {
             return 'medio';
         }
     }
+
+    public function setStatus($status) {
+        $this->status = $status;
+    }
 }
