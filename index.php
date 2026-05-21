@@ -12,7 +12,7 @@
       <div class="login-brand" aria-hidden="true">
         <img class="login-logo-img" src="view/logo.jpeg" alt="Logo GPI" />
       </div>
-      <h1>GPI</h1>
+      
       <form class="login-form" action="roteador.php?controller=Usuario&action=login" method="POST">
 
         <label>Usuário</label>
