@@ -38,7 +38,7 @@ class ProdutoDAO {
                 return null;
             }
             $categoriaDAO = new CategoriaDAO();
-            $categoria = $categoriaDAO->buscarPorId($dados['idcategoria']);
+            $categoria = $categoriaDAO->buscarPorId($dados['id_categoria']);
             $produto = new Produto();
             $produto->setId($dados['id']);
             $produto->setNome($dados['nome']);
