@@ -1,15 +1,18 @@
 <?php
 
-class UsuarioController {
+class UsuarioController
+{
     private $usuarioDAO;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->usuarioDAO = new UsuarioDAO();
     }
 
     // ... (método index omitido para focar no erro)
 
-    public function cadastrar() {
+    public function cadastrar()
+    {
         try {
             $nome = $_POST['nome'];
             $login = $_POST['login'];
@@ -32,7 +35,6 @@ class UsuarioController {
             // CORREÇÃO AQUI: Removido o __DIR__ e as aspas simples problemáticas
             header("Location: roteador.php?controller=Gestao&action=index&status=sucesso");
             exit;
-
         } catch (Exception $e) {
             // CORREÇÃO AQUI: Redireciona para erro se algo falhar
             header("Location: roteador.php?controller=Gestao&action=index&status=erro");
@@ -40,15 +42,16 @@ class UsuarioController {
         }
     }
 
-    public function login() {
+    public function login()
+    {
         try {
             $login = $_POST['login'];
             $senha = $_POST['senha'];
-            
+
             $usuario = $this->usuarioDAO->buscarPorlogin($login);
             if ($usuario && password_verify($senha, $usuario->getSenha())) {
                 if (session_status() === PHP_SESSION_NONE) session_start();
-                
+
                 $_SESSION['usuario'] = [
                     'id' => $usuario->getId(),
                     'nome' => $usuario->getNome(),
@@ -69,5 +72,14 @@ class UsuarioController {
             header("Location: index.php?erro=problema_servidor");
         }
     }
-    // ...
+
+    public function logout()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        session_destroy();
+        header("Location: index.php");
+        exit;
+    }
 }
