@@ -1,11 +1,14 @@
+/* =========================================
+   VARIÁVEIS E RESET
+   ========================================= */
 :root {
-    /* Cores e Variáveis */
     --bg: #f4f7fe;
     --card: #ffffff;
     --line: #e2e8f0;
     --text: #2d3748;
     --muted: #718096;
     --primary: #4f46e5;
+    --primary-dark: #4338ca;
     --normal: #10b981;
     --atencao: #f59e0b;
     --vazio: #ef4444;
@@ -20,7 +23,9 @@
     --font-main: 'Inter', sans-serif;
 }
 
-* { box-sizing: border-box; }
+* { 
+    box-sizing: border-box; 
+}
 
 body {
     margin: 0;
@@ -30,7 +35,9 @@ body {
     line-height: 1.5;
 }
 
-/* Layout */
+/* =========================================
+   ESTRUTURA DE LAYOUT (APP)
+   ========================================= */
 .app {
     display: grid;
     grid-template-columns: 260px 1fr;
@@ -49,6 +56,11 @@ body {
     z-index: 100;
 }
 
+.content { 
+    padding: 32px; 
+}
+
+/* Sidebar Brand */
 .brand {
     font-weight: 800;
     font-size: 1.4rem;
@@ -64,6 +76,7 @@ body {
     font-weight: 400;
 }
 
+/* Menu de Navegação */
 .menu-item {
     text-decoration: none;
     color: var(--muted);
@@ -75,6 +88,7 @@ body {
     align-items: center;
     gap: 12px;
     transition: 0.2s;
+    margin-bottom: 4px;
 }
 
 .menu-item i { width: 20px; text-align: center; }
@@ -84,19 +98,15 @@ body {
     color: var(--primary);
 }
 
-.menu-divider { height: 1px; background: var(--line); margin: 16px 0; }
-
-.content { padding: 32px; }
-
-/* Grid da Home */
-.main-grid {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 24px;
-    align-items: start;
+.menu-divider { 
+    height: 1px; 
+    background: var(--line); 
+    margin: 16px 0; 
 }
 
-/* Cards */
+/* =========================================
+   COMPONENTES (CARDS, KPIS, GRIDS)
+   ========================================= */
 .card {
     background: #fff !important;
     border-radius: 16px !important;
@@ -104,7 +114,15 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* KPIs */
+/* Grid Principal da Home */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* KPIs de Status */
 .kpis {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -128,10 +146,10 @@ body {
     font-size: 1.2rem;
 }
 
-/* Prateleiras */
+/* Grid de Prateleiras */
 .shelf-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
 }
 
@@ -140,12 +158,17 @@ body {
     border-radius: 12px;
     border-left: 5px solid #cbd5e1 !important;
     background: #fff;
+    transition: transform 0.2s;
+}
+
+.shelf-item:hover {
+    transform: translateY(-2px);
 }
 
 .shelf-item.status-cheio { border-left-color: var(--normal) !important; }
 .shelf-item.status-vazio { border-left-color: var(--vazio) !important; }
 
-/* Pontos de Status */
+/* Indicadores */
 .dot {
     width: 8px;
     height: 8px;
@@ -155,26 +178,86 @@ body {
 .dot.cheio { background: var(--normal); }
 .dot.vazio { background: var(--vazio); }
 
-/* Alertas */
+/* Alertas e Histórico */
 .alert-item {
-    transition: 0.2s;
+    border-left: 4px solid var(--atencao);
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 12px;
 }
+
+.alert-item.vazio {
+    border-left-color: var(--vazio);
+}
+
 .smaller { font-size: 0.75rem; }
 
-/* Formulários (IoT) */
+/* =========================================
+   FORMULÁRIOS E BOTÕES
+   ========================================= */
 .form-control, .form-select {
     height: 42px !important;
     border-radius: 10px !important;
     border: 1px solid var(--line) !important;
     font-size: 0.9rem;
+    padding: 8px 12px;
 }
 
-/* Responsividade */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-light) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary) !important;
+    border: none !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark) !important;
+}
+
+/* =========================================
+   PÁGINA DE LOGIN
+   ========================================= */
+.login-body {
+    background-color: var(--bg);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-page {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.login-logo-img {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 24px;
+    border-radius: 12px;
+}
+
+/* =========================================
+   RESPONSIVIDADE
+   ========================================= */
 @media (max-width: 1100px) {
     .main-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
     .app { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-}
+    .sidebar { display: none; } /* Ideal implementar menu hamburguer aqui depois */
+    .content { padding: 20px; }
+}   
