@@ -2,7 +2,7 @@
 class Produto {
     private $id;
     private $nome;
-    private $pesoUnitario;
+    private $peso_unitario;
     private $categoria;
 
     // Getters
@@ -19,7 +19,7 @@ class Produto {
     }
 
     public function getPesoUnitario() {
-        return $this->pesoUnitario;
+        return $this->peso_unitario;
     }
 
     public function getCategoria() {
@@ -31,8 +31,8 @@ class Produto {
         $this->nome = $nome;
     }
 
-    public function setPesoUnitario($pesoUnitario) {
-        $this->pesoUnitario = $pesoUnitario;
+    public function setPesoUnitario($peso_unitario) {
+        $this->peso_unitario = $peso_unitario;
     }
 
     public function setCategoria($categoria) {

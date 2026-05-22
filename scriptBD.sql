@@ -18,8 +18,8 @@ CREATE TABLE produtos (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     nome VARCHAR(120) NOT NULL,
     peso_unitario DECIMAL(10,3) NOT NULL,
-    idCategoria INT,
-    FOREIGN KEY (idCategoria) REFERENCES categorias(id)
+    id_categoria INT,
+    FOREIGN KEY (id_categoria) REFERENCES categorias(id)
 );
 
 CREATE TABLE sensor (
@@ -27,9 +27,9 @@ CREATE TABLE sensor (
     nome VARCHAR(120) NOT NULL,
     corredor VARCHAR(120) NOT NULL,
     lado VARCHAR(120) NOT NULL,
-    pesoAtual DECIMAL(10,3) NOT NULL DEFAULT 0,
-    capacidadeMaxima INT NOT NULL DEFAULT 20,
-    minimoReposicao INT NOT NULL DEFAULT 5,
+    peso_atual DECIMAL(10,3) NOT NULL DEFAULT 0,
+    capacidade_maxima INT NOT NULL DEFAULT 20,
+    minimo_reposicao INT NOT NULL DEFAULT 5,
     ultima_atualizacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     id_produto INT NOT NULL,
     status VARCHAR(20) NOT NULL,

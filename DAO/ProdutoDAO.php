@@ -9,7 +9,7 @@ class ProdutoDAO {
 
     public function inserir(Produto $p) {
         try {
-            $sql = "INSERT INTO produtos (nome, peso_unitario, idcategoria) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO produtos (nome, peso_unitario, id_categoria) VALUES (?, ?, ?)";
             $stmt = $this->conexao->prepare($sql);
             $stmt->execute([$p->getNome(), $p->getPesoUnitario(), $p->getCategoria()->getId()]);
             return true;
@@ -20,7 +20,7 @@ class ProdutoDAO {
 
     public function listarTodos() {
         try {
-            $sql = "SELECT i.*, c.nome as categoria_nome FROM produtos i inner join categorias c on i.idcategoria = c.id order by i.nome asc";
+            $sql = "SELECT i.*, c.nome as categoria_nome FROM produtos i inner join categorias c on i.id_categoria = c.id order by i.nome asc";
             $stmt = $this->conexao->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

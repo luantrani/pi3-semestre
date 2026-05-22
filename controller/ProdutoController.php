@@ -13,33 +13,33 @@ class ProdutoController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $nome         = filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_SPECIAL_CHARS);
-            $pesoUnitario = filter_input(INPUT_POST, 'peso_unitario', FILTER_VALIDATE_FLOAT);
-            $categoriaId  = filter_input(INPUT_POST, 'categoria_id', FILTER_VALIDATE_INT);
+            $peso_unitario = filter_input(INPUT_POST, 'peso_unitario', FILTER_VALIDATE_FLOAT);
+            $id_categoria  = filter_input(INPUT_POST, 'categoria_id', FILTER_VALIDATE_INT);
 
-            if ($nome && $pesoUnitario !== false && $categoriaId) {
+            if ($nome && $peso_unitario !== false && $id_categoria) {
                 try {
                     $categoria = new Categoria();
-                    $categoria->setId($categoriaId); 
+                    $categoria = $this->categoriaDAO->buscarPorId($id_categoria); 
 
                     $produto = new Produto();
                     $produto->setNome($nome);
-                    $produto->setPesoUnitario($pesoUnitario);
+                    $produto->setPesoUnitario($peso_unitario);
                     $produto->setCategoria($categoria);
 
                     $sucesso = $this->produtoDAO->inserir($produto);
 
                     if ($sucesso) {
-                        header('Location: roteador.php?controller=Produto&action=index&status=sucesso');
+                        header('Location: roteador.php?controller=Gestao&action=index&status=sucesso');
                         exit;
                     }
                 } catch (Exception $e) {
-                    header('Location: roteador.php?controller=Produto&action=index&status=erro');
+                    header('Location: roteador.php?controller=Gestao&action=index&status=erro');
                     exit;
                 }
             }
         }
         
-        header('Location: roteador.php?controller=Produto&action=index&status=erro');
+        header('Location: roteador.php?controller=Gestao&action=index&status=erro');
         exit;
     }
 
@@ -49,30 +49,5 @@ class ProdutoController {
         } catch (Exception $e) {
             throw new Exception("Erro ao listar produtos: " . $e->getMessage());
         }
-    }
-
-    public function index() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
-            session_destroy();
-            header("Location: index.php?erro=acesso_negado");
-            exit;
-        }
-
-        $nivel = $_SESSION['usuario']['nivel_acesso'];
-        $status = $_GET['status'] ?? null;
-
-        try {
-            $categorias = $this->categoriaDAO->listarTodos(); 
-            $produtos = $this->listar();
-        } catch (Exception $e) {
-            $status = 'erro_listar';
-            $categorias = [];
-            $produtos = [];
-        }
-        require_once __DIR__ . '/../view/cadastro-produto.php';
     }
 }

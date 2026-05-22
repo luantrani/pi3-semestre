@@ -9,7 +9,7 @@ class SensorDAO {
 
     public function inserir(Sensor $sensor) {
         try {
-            $sql = "INSERT INTO sensor (corredor, lado, capacidadeMaxima, minimoReposicao, id_produto) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO sensor (corredor, lado, capacidade_maxima, minimo_reposicao, id_produto) VALUES (?, ?, ?, ?, ?)";
             $stmt = $this->conexao->prepare($sql);
             $stmt->bindValue(1, $sensor->getCorredor());
             $stmt->bindValue(2, $sensor->getLado());
@@ -23,41 +23,52 @@ class SensorDAO {
     }
 
     public function listarTodos() {
-        try {
-            $sql = "SELECT s.*, p.*, c.nome AS nome_categoria
-                    FROM sensor s 
-                    JOIN produtos p ON s.id_produto = p.id JOIN categorias c ON p.idCategoria = c.id";
-            $stmt = $this->conexao->query($sql);
-            $sensores = [];
-            $stmt->fetch(PDO::FETCH_ASSOC);
-            foreach ($stmt as $row) {
-                $categoria = new Categoria();
-                $categoria->setId($row['idCategoria']);
-                $categoria->setNome($row['nome_categoria']);
-                
-                $produto = new Produto();
-                $produto->setId($row['id_produto']);
-                $produto->setNome($row['nome']);
-                $produto->setPesoUnitario($row['peso_unitario']);
-                $produto->setCategoria($categoria);
-                
-                $sensor = new Sensor();
-                $sensor->setId($row['id']);
-                $sensor->setNome($row['nome']);
-                $sensor->setCorredor($row['corredor']);
-                $sensor->setLado($row['lado']);
-                $sensor->setCapacidadeMaxima($row['capacidadeMaxima']);
-                $sensor->setMinimoReposicao($row['minimoReposicao']);
-                $sensor->setProduto($produto);
-                $sensor->setStatus($row['status']);
-                
-                $sensores[] = $sensor;
-            }
-            return $sensores;
-        } catch (PDOException $e) {
-            throw new Exception("Erro ao listar sensores. " . $e->getMessage());
+    try {
+        // Selecionamos as colunas explicitamente para evitar conflitos de nomes
+        $sql = "SELECT s.id AS sensor_id, s.nome AS sensor_nome, s.corredor, s.lado, 
+                       s.peso_atual, s.capacidade_maxima, s.minimo_reposicao, s.status AS sensor_status,
+                       p.id AS produto_id, p.nome AS produto_nome, p.peso_unitario,
+                       c.id AS categoria_id, c.nome AS categoria_nome
+                FROM sensor s 
+                JOIN produtos p ON s.id_produto = p.id 
+                JOIN categorias c ON p.id_categoria = c.id";
+
+        $stmt = $this->conexao->query($sql);
+        $sensores = [];
+
+        // O foreach já itera sobre o statement, não precisa de fetch antes
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            // 1. Monta Categoria
+            $categoria = new Categoria();
+            $categoria->setId($row['categoria_id']);
+            $categoria->setNome($row['categoria_nome']);
+            
+            // 2. Monta Produto
+            $produto = new Produto();
+            $produto->setId($row['produto_id']);
+            $produto->setNome($row['produto_nome']);
+            $produto->setPesoUnitario($row['peso_unitario']);
+            $produto->setCategoria($categoria);
+            
+            // 3. Monta Sensor
+            $sensor = new Sensor();
+            $sensor->setId($row['sensor_id']);
+            $sensor->setNome($row['sensor_nome']);
+            $sensor->setCorredor($row['corredor']);
+            $sensor->setLado($row['lado']);
+            $sensor->setPesoAtual($row['peso_atual']);
+            $sensor->setCapacidadeMaxima($row['capacidade_maxima']);
+            $sensor->setMinimoReposicao($row['minimo_reposicao']);
+            $sensor->setProduto($produto);
+            $sensor->setStatus($row['sensor_status']);
+            
+            $sensores[] = $sensor;
         }
+        return $sensores;
+    } catch (PDOException $e) {
+        throw new Exception("Erro ao listar sensores: " . $e->getMessage());
     }
+}
 
     public function atualizarPeso($id_sensor, $novo_peso) {
         $sql = "UPDATE sensor SET peso_atual = ?, ultima_atualizacao = NOW() WHERE id = ?";

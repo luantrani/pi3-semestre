@@ -7,42 +7,35 @@ class UsuarioController {
         $this->usuarioDAO = new UsuarioDAO();
     }
 
-    public function index() {
-        try {
-            $status = $_GET['status'] ?? null;
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $nivel = $_SESSION['usuario']['nivel_acesso'];
-        if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['nivel_acesso'] !== 'gerente') {
-            session_destroy();
-            header("Location: index.php?erro=acesso_negado");
-            exit;
-        }
-            $repositores = $this->usuarioDAO->listarRepositores();
-            require_once __DIR__ . '/../view/cadastro-repositor.php';
-        } catch (Exception $e) {
-            die("Erro ao carregar repositores: " . $e->getMessage());
-        }
-    }
+    // ... (método index omitido para focar no erro)
 
     public function cadastrar() {
         try {
             $nome = $_POST['nome'];
             $login = $_POST['login'];
             $senha = $_POST['senha'];
-            $nivelAcesso = $_POST['nivelAcesso'];
+            $nivel_acesso = "repositor";
 
             $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-            $usuario = new Usuario($nome, $login, $senhaHash, $nivelAcesso);
-            $usuarioDAO = new UsuarioDAO();
-            $sucesso = $usuarioDAO->cadastrar($usuario);
+            $usuario = new Usuario();
+            $usuario->setNome($nome);
+            $usuario->setLogin($login);
+            $usuario->setSenha($senhaHash);
+            $usuario->setNivelAcesso($nivel_acesso);
 
-            header('Location: __DIR__ . "/../roteador.php?controller=RepositorCadastro&action=index&status=sucesso"');
-            
+            $sucesso = $this->usuarioDAO->cadastrar($usuario);
+
+            if (!$sucesso) {
+                throw new Exception("Erro ao cadastrar usuário");
+            }
+
+            // CORREÇÃO AQUI: Removido o __DIR__ e as aspas simples problemáticas
+            header("Location: roteador.php?controller=Gestao&action=index&status=sucesso");
             exit;
+
         } catch (Exception $e) {
-                header('Location: __DIR__ . "/../roteador.php?controller=RepositorCadastro&action=index&status=erro"');
+            // CORREÇÃO AQUI: Redireciona para erro se algo falhar
+            header("Location: roteador.php?controller=Gestao&action=index&status=erro");
             exit;
         }
     }
@@ -52,33 +45,29 @@ class UsuarioController {
             $login = $_POST['login'];
             $senha = $_POST['senha'];
             
-            $usuarioDAO = new UsuarioDAO();
-            $usuario = $usuarioDAO->buscarPorlogin($login);
+            $usuario = $this->usuarioDAO->buscarPorlogin($login);
             if ($usuario && password_verify($senha, $usuario->getSenha())) {
-                session_start();
+                if (session_status() === PHP_SESSION_NONE) session_start();
+                
                 $_SESSION['usuario'] = [
                     'id' => $usuario->getId(),
                     'nome' => $usuario->getNome(),
                     'nivel_acesso' => $usuario->getNivelAcesso()
                 ];
+
+                // CORREÇÃO AQUI: Redirecionamento limpo para o roteador
                 if ($usuario->getNivelAcesso() === 'gerente') {
-                    header("Location: __DIR__ . '/../roteador.php?controller=Home&action=index");
+                    header("Location: roteador.php?controller=Home&action=index");
                 } else {
-                    header("Location: __DIR__ . '/../roteador.php?controller=Repositor&action=index");
+                    header("Location: roteador.php?controller=Repositor&action=index");
                 }
                 exit;
             } else {
-                echo "login ou senha inválidos. Tente novamente.";
+                header("Location: index.php?erro=login_invalido");
             }
         } catch (Exception $e) {
-            echo "Ops! Tivemos um problema ao processar seu login. Tente novamente mais tarde.";
+            header("Location: index.php?erro=problema_servidor");
         }
     }
-
-    public function logout() {
-        session_start();
-        session_destroy();
-        header("Location: index.php");
-        exit;
-    }
+    // ...
 }
