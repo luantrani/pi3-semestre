@@ -65,3 +65,44 @@ CREATE TABLE movimentacao_estoque (
 );
 
 INSERT INTO `usuarios`(`nome`, `login`, `senha`, `nivel_acesso`) VALUES ('administrador','gpiadmin','$2y$10$dLpz.bzESR.qZWDaMaybu.zt9EFhs72TlLEQiLEPNTvkTaNXcr/dG','gerente');
+
+-- 1. Inserindo Categorias (Essenciais para o Produto)
+INSERT INTO categorias (nome) VALUES 
+('Bebidas'), 
+('Limpeza'), 
+('Higiene'), 
+('Alimentos');
+
+-- 2. Inserindo Usuários (Um de cada nível)
+-- Senha para ambos: admin123 (usando o hash que você forneceu)
+INSERT INTO usuarios (nome, login, senha, nivel_acesso) VALUES 
+('Carlos Repositor', 'carlos.gpi', '$2y$10$dLpz.bzESR.qZWDaMaybu.zt9EFhs72TlLEQiLEPNTvkTaNXcr/dG', 'repositor');
+
+-- 3. Inserindo Produtos
+-- O peso_unitario é importante para a lógica do sensor IoT
+INSERT INTO produtos (nome, peso_unitario, id_categoria) VALUES 
+('Coca-Cola 2L', 2.100, 1),
+('Amaciante Downy 500ml', 0.550, 2),
+('Arroz Tio João 5kg', 5.050, 4),
+('Detergente Ypê 500ml', 0.520, 2),
+('Sabonete Dove 90g', 0.095, 3);
+
+-- 4. Inserindo Sensores (O coração do sistema)
+-- Aqui simulamos alguns cheios e outros precisando de reposição
+INSERT INTO sensor (nome, corredor, lado, peso_atual, capacidade_maxima, minimo_reposicao, id_produto, status) VALUES 
+('Sensor Coca-A1', 'Corredor 1', 'Lado A', 21.000, 20, 5, 1, 'Ativo'),      -- 10 itens (Cheio)
+('Sensor Amaciante-B1', 'Corredor 3', 'Lado B', 1.100, 20, 5, 2, 'Ativo'),   -- 2 itens (Vazio/Alerta)
+('Sensor Arroz-C2', 'Corredor 5', 'Lado A', 50.500, 15, 3, 3, 'Ativo'),      -- 10 itens (Cheio)
+('Sensor Detergente-B2', 'Corredor 3', 'Lado B', 2.080, 25, 6, 4, 'Ativo'),  -- 4 itens (Vazio/Alerta)
+('Sensor Sabonete-D1', 'Corredor 2', 'Lado A', 0.190, 50, 10, 5, 'Inativo'); -- 2 itens (Inativo)
+
+-- 5. Inserindo Histórico de Alertas (Para popular a sua barra lateral)
+-- Simulando alertas que ainda não foram resolvidos
+INSERT INTO historico_alertas (id_sensor, quantidade_no_momento, status) VALUES 
+(2, 2, 'pendente'),
+(4, 4, 'pendente');
+
+-- 6. Inserindo uma Movimentação de Estoque (Para o Dashboard)
+INSERT INTO movimentacao_estoque (id_produto, id_usuario, quantidade_adicionada) VALUES 
+(1, 1, 10),
+(3, 1, 15);
