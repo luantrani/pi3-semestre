@@ -41,4 +41,26 @@ class CategoriaDAO {
             throw new Exception("Erro ao buscar categoria. " . $e->getMessage());
         }
     }
+
+    public function excluir($id){
+        try {
+            $sql = "DELETE * FROM categorias WHERE id =?";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception("Erro ao excluir categoria. " . $e->getMessage());
+        }
+    }
+    
+    public function alterar(Categoria $categoria){
+        try {
+            $sql = "UPDATE categorias SET nome = ? WHERE id = ?";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->execute([$categoria->getNome(), $categoria->getId()]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception("Erro ao alterar categoria. " . $e->getMessage());
+        }
+    }
 }
