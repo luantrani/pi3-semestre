@@ -106,3 +106,26 @@ INSERT INTO historico_alertas (id_sensor, quantidade_no_momento, status) VALUES
 INSERT INTO movimentacao_estoque (id_produto, id_usuario, quantidade_adicionada) VALUES 
 (1, 1, 10),
 (3, 1, 15);
+
+
+-- Adicionando coluna para ajudar na exibição do Dashboard
+ALTER TABLE produtos ADD COLUMN unidade_medida VARCHAR(10) DEFAULT 'un';
+
+-- 5. Inserindo mais Alertas Históricos (Para popular a barra lateral com mais dados)
+INSERT INTO historico_alertas (id_sensor, quantidade_no_momento, status, data_hora_alerta) VALUES 
+(2, 2, 'pendente', '2026-05-25 10:15:00'),
+(4, 4, 'pendente', '2026-05-25 11:30:00'),
+(3, 1, 'resolvido', '2026-05-24 09:00:00');
+
+-- 6. Inserindo Logs de Reposição (Para que a Área do Repositor não pareça vazia)
+-- Isso mostra quem trabalhou e quando
+INSERT INTO logs_reposicao (id_sensor, id_usuario_repositor, data_hora_conclusao) VALUES 
+(1, 2, '2026-05-24 14:00:00'),
+(3, 2, '2026-05-25 08:30:00');
+
+-- 7. Inserindo mais Movimentações de Estoque (Para os gráficos de Relatório)
+INSERT INTO movimentacao_estoque (id_produto, id_usuario, quantidade_adicionada, data_hora) VALUES 
+(1, 1, 20, '2026-05-20 10:00:00'),
+(2, 2, 10, '2026-05-21 11:00:00'),
+(4, 2, 30, '2026-05-22 15:30:00'),
+(5, 1, 100, '2026-05-23 09:15:00');

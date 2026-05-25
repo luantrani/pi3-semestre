@@ -2,11 +2,11 @@
    VARIÁVEIS E RESET
    ========================================= */
 :root {
-    --bg: #f0f0f0de;
+    --bg: #f8fafc;
     --card: #ffffff;
     --line: #e2e8f0;
-    --text: #2d3748;
-    --muted: #718096;
+    --text: #1e293b;
+    --muted: #64748b;
     --primary: #4f46e5;
     --primary-dark: #4338ca;
     --normal: #10b981;
@@ -17,9 +17,8 @@
     --success-light: rgba(16, 185, 129, 0.1);
     --danger-light: rgba(239, 68, 68, 0.1);
     --warning-light: rgba(245, 158, 11, 0.1);
-    --info-light: rgba(6, 182, 212, 0.1);
 
-    --shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --font-main: 'Inter', sans-serif;
 }
 
@@ -62,14 +61,18 @@ body {
 
 /* Sidebar Brand */
 .brand {
-    font-weight: 800;
-    font-size: 1.4rem;
-    color: var(--primary);
     margin-bottom: 32px;
     padding-left: 12px;
 }
 
-.brand small {
+.brand-text span {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--primary);
+    display: block;
+}
+
+.brand-text small {
     display: block;
     font-size: 0.75rem;
     color: var(--muted);
@@ -105,7 +108,7 @@ body {
 }
 
 /* =========================================
-   COMPONENTES (CARDS, KPIS, GRIDS)
+   COMPONENTES (CARDS E KPIS)
    ========================================= */
 .card {
     background: #fff !important;
@@ -114,150 +117,108 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* Grid Principal da Home */
-.main-grid {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 24px;
-    align-items: start;
-}
-
-/* KPIs de Status */
-.kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
+/* Container dos KPIs - Use o flex do Bootstrap no HTML, e o CSS apenas para o visual interno */
 .kpi-card {
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    text-align: center;
+    min-height: 160px;
+    width: 100%; /* Garante que o card preencha a coluna do Bootstrap */
 }
 
 .kpi-icon {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    flex-shrink: 0; /* Impede o ícone de amassar */
 }
 
-/* Grid de Prateleiras */
+/* Garante que o conteúdo textual não quebre o alinhamento */
+.kpi-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.kpi-info small {
+    display: block;
+    margin-bottom: 4px;
+    white-space: nowrap; /* Evita que o texto pule linha e entorte o card */
+}
+
+.kpi-info strong {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+/* Classes de cores suaves */
+.bg-primary-light { background-color: rgba(79, 70, 229, 0.1) !important; color: #4f46e5; }
+.bg-success-light { background-color: rgba(16, 185, 129, 0.1) !important; color: #10b981; }
+.bg-danger-light  { background-color: rgba(239, 68, 68, 0.1) !important; color: #ef4444; }
+.bg-warning-light { background-color: rgba(245, 158, 11, 0.1) !important; color: #f59e0b; }
+/* Cores de Fundo Suaves para Ícones */
+.bg-primary-light { background-color: var(--primary-light); color: var(--primary); }
+.bg-success-light { background-color: var(--success-light); color: var(--normal); }
+.bg-danger-light  { background-color: var(--danger-light); color: var(--vazio); }
+
+/* =========================================
+   GRID DE PRATELEIRAS E ALERTAS
+   ========================================= */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+    align-items: start;
+}
+
 .shelf-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
 }
 
 .shelf-item {
     border: 1px solid var(--line) !important;
-    border-radius: 12px;
     border-left: 5px solid #cbd5e1 !important;
-    background: #fff;
-    transition: transform 0.2s;
-}
-
-.shelf-item:hover {
-    transform: translateY(-2px);
+    transition: 0.2s ease;
 }
 
 .shelf-item.status-cheio { border-left-color: var(--normal) !important; }
 .shelf-item.status-vazio { border-left-color: var(--vazio) !important; }
 
-/* Indicadores */
-.dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
+/* Barra de Progresso Customizada */
+.progress {
+    background-color: #f1f5f9;
+    overflow: hidden;
 }
-.dot.cheio { background: var(--normal); }
-.dot.vazio { background: var(--vazio); }
 
-/* Alertas e Histórico */
+/* Alertas Laterais */
 .alert-item {
-    border-left: 4px solid var(--atencao);
-    padding: 12px;
-    background: #f8fafc;
-    border-radius: 8px;
-    margin-bottom: 12px;
-}
-
-.alert-item.vazio {
-    border-left-color: var(--vazio);
-}
-
-.smaller { font-size: 0.75rem; }
-
-/* =========================================
-   FORMULÁRIOS E BOTÕES
-   ========================================= */
-.form-control, .form-select {
-    height: 42px !important;
-    border-radius: 10px !important;
-    border: 1px solid var(--line) !important;
-    font-size: 0.9rem;
-    padding: 8px 12px;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 3px var(--primary-light) !important;
-}
-
-.btn-primary {
-    background-color: var(--primary) !important;
-    border: none !important;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark) !important;
-}
-
-/* =========================================
-   PÁGINA DE LOGIN
-   ========================================= */
-.login-body {
-    background-color: var(--bg);
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.login-page {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-}
-
-.login-card {
-    background: #fff;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-}
-
-.login-logo-img {
-    max-width: 150px;
-    height: auto;
-    margin-bottom: 24px;
+    border-left: 4px solid var(--vazio);
+    padding: 16px;
+    background: #fdf2f2;
     border-radius: 12px;
+    margin-bottom: 12px;
 }
 
 /* =========================================
    RESPONSIVIDADE
    ========================================= */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .main-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
     .app { grid-template-columns: 1fr; }
-    .sidebar { display: none; } /* Ideal implementar menu hamburguer aqui depois */
-    .content { padding: 20px; }
-}   
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+    .kpi-card { min-height: auto; }
+}
