@@ -129,3 +129,12 @@ INSERT INTO movimentacao_estoque (id_produto, id_usuario, quantidade_adicionada,
 (2, 2, 10, '2026-05-21 11:00:00'),
 (4, 2, 30, '2026-05-22 15:30:00'),
 (5, 1, 100, '2026-05-23 09:15:00');
+
+-- Adicionando o status de progresso
+ALTER TABLE historico_alertas 
+MODIFY COLUMN status ENUM('pendente', 'em_andamento', 'resolvido') DEFAULT 'pendente';
+
+-- Adicionando quem está atendendo
+ALTER TABLE historico_alertas 
+ADD COLUMN id_usuario_atendimento INT,
+ADD FOREIGN KEY (id_usuario_atendimento) REFERENCES usuarios(id);

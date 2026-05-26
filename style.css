@@ -209,6 +209,68 @@ body {
     margin-bottom: 12px;
 }
 
+.alert-item.vazio {
+    border-left-color: var(--vazio);
+}
+
+.smaller { font-size: 0.75rem; }
+
+/* =========================================
+   FORMULÁRIOS E BOTÕES
+   ========================================= */
+.form-control, .form-select {
+    height: 42px !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--line) !important;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-light) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary) !important;
+    border: none !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark) !important;
+}
+
+/* =========================================
+   PÁGINA DE LOGIN
+   ========================================= */
+.login-body {
+    background-color: var(--bg);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-page {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.login-logo-img {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 24px;
+    border-radius: 12px;
+}
+
 /* =========================================
    RESPONSIVIDADE
    ========================================= */

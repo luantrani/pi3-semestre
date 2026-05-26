@@ -33,7 +33,7 @@
                     <i class="fa-solid fa-gears"></i> Administração
                 </a>
             </nav>
-            <button class="btn btn-danger mt-auto mx-2 mb-3" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
+            <button class="btn btn-danger mt-auto mx-2 mb-3 py-2" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
                 <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
             </button>
         </aside>
@@ -42,88 +42,157 @@
             <header class="header mb-4 d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="fw-bold h2 mb-1">Painel do Repositor</h1>
-                    <p class="text-muted small">Prioridades de abastecimento em tempo real.</p>
+                    <p class="text-muted small mb-0">Prioridades de abastecimento em tempo real.</p>
                 </div>
-                <a class="btn btn-primary fw-bold shadow-sm" href="roteador.php?controller=RepositorCadastro&action=index">
+                <a class="btn btn-primary fw-bold shadow-sm px-4" href="roteador.php?controller=RepositorCadastro&action=index">
                     <i class="fa-solid fa-user-plus me-2"></i> Cadastrar Repositor
                 </a>
             </header>
 
-            <section class="kpis mb-4">
-                <article class="card kpi-card border-0 shadow-sm">
-                    <div class="kpi-icon bg-primary-light">
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted d-block">Monitorados</small>
-                        <strong class="h4 mb-0">4 Seções</strong>
-                    </div>
-                </article>
+            <section class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <article class="card kpi-card border-0 shadow-sm h-100">
+                        <div class="kpi-icon bg-primary-light">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <small class="text-muted">MONITORADOS</small>
+                            <strong><?php echo count($sensores); ?> Seções</strong>
+                        </div>
+                    </article>
+                </div>
 
-                <article class="card kpi-card border-0 shadow-sm">
-                    <div class="kpi-icon bg-danger-light text-danger">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted d-block">Reposição</small>
-                        <strong class="h4 mb-0 text-danger">2 Alertas</strong>
-                    </div>
-                </article>
+                <div class="col-md-4">
+                    <article class="card kpi-card border-0 shadow-sm h-100">
+                        <div class="kpi-icon bg-danger-light text-danger">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <small class="text-muted">EM ALERTA</small>
+                            <strong><?php echo count($alertas); ?> Pendentes</strong>
+                        </div>
+                    </article>
+                </div>
 
-                <article class="card kpi-card border-0 shadow-sm">
-                    <div class="kpi-icon bg-warning-light text-warning">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted d-block">Urgente</small>
-                        <strong class="h5 mb-0">Bebidas - Sucos</strong>
-                    </div>
-                </article>
+                <div class="col-md-4">
+                    <article class="card kpi-card border-0 shadow-sm h-100">
+                        <div class="kpi-icon bg-warning-light text-warning">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <small class="text-muted">MAIS URGENTE</small>
+                            <strong class="text-truncate d-block" style="max-width: 100%;">
+                                <?php echo !empty($alertas) ? $alertas[0]->getProduto()->getNome() : 'Nenhum'; ?>
+                            </strong>
+                        </div>
+                    </article>
+                </div>
             </section>
 
             <section class="card border-0 shadow-sm p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="h5 fw-bold mb-0">Alertas de Reposição</h2>
-                    <span class="badge bg-light text-dark border fw-normal">Atualizado agora</span>
+                    <span class="badge bg-light text-dark border fw-normal px-3 py-2">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Atualizado às <?php echo date('H:i'); ?>
+                    </span>
                 </div>
                 
                 <div class="alerts row g-3">
-                    <article class="alert-item col-12 d-flex align-items-center justify-content-between p-3 rounded-4 border-start border-danger border-5 bg-danger-light">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="alert-icon-circle bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                                <i class="fa-solid fa-droplet"></i>
-                            </div>
-                            <div>
-                                <strong class="alert-title d-block h6 mb-1 text-danger">Bebidas - Sucos (15% cheio)</strong>
-                                <p class="alert-subtitle mb-0 small text-muted">
-                                    <i class="fa-solid fa-location-dot me-1"></i> Corredor A1 — <i class="fa-solid fa-clock ms-2 me-1"></i> Há 10 minutos
-                                </p>
-                            </div>
+                    <?php if (empty($alertas)): ?>
+                        <div class="col-12 text-center py-5">
+                            <i class="fa-solid fa-circle-check text-success opacity-25 mb-3" style="font-size: 4rem;"></i>
+                            <h3 class="h5 text-muted">Tudo abastecido!</h3>
+                            <p class="text-muted small">Não há produtos abaixo do nível mínimo no momento.</p>
                         </div>
-                        <div class="text-end">
-                            <span class="badge bg-danger rounded-pill px-3 py-2">10 unidades restantes</span>
-                        </div>
-                    </article>
+                    <?php else: foreach ($alertas as $a): 
+                        // Lógica de ícone por categoria
+                        $icon = "fa-box";
+                        $categoria = strtolower($a->getProduto()->getCategoria());
+                        if (strpos($categoria, 'bebi') !== false) $icon = "fa-droplet";
+                        elseif (strpos($categoria, 'limp') !== false) $icon = "fa-spray-can-sparkles";
+                        elseif (strpos($categoria, 'higi') !== false) $icon = "fa-pump-soap";
+                    ?>
+                        <article class="alert-item col-12 d-flex align-items-center justify-content-between p-3 rounded-4 border-start border-danger border-5 bg-danger-light shadow-sm">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="alert-icon-circle bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="min-width: 48px; height: 48px;">
+                                    <i class="fa-solid <?php echo $icon; ?> fa-lg"></i>
+                                </div>
+                                <div>
+                                    <strong class="alert-title d-block h6 mb-1 text-danger">
+                                        <?php echo $a->getProduto()->getNome(); ?>
+                                    </strong>
+                                    <p class="alert-subtitle mb-0 small text-muted">
+                                        <i class="fa-solid fa-location-dot me-1"></i> <?php echo $a->getCorredor(); ?> (<?php echo $a->getSensor()->getLado(); ?>) — 
+                                        <i class="fa-solid fa-clock ms-2 me-1"></i> Há <?php echo $a->getTempoDesdeAlerta(); ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-end d-flex flex-column align-items-end gap-2">
+                                <span class="badge bg-danger rounded-pill px-3 py-2">
+                                    Restam <?php echo $a->getQuantidadeNoMomento(); ?> un
+                                </span>
 
-                    <article class="alert-item col-12 d-flex align-items-center justify-content-between p-3 rounded-4 border-start border-danger border-5 bg-danger-light">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="alert-icon-circle bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                                <i class="fa-solid fa-spray-can-sparkles"></i>
+                                <?php 
+                                // Captura os dados necessários para a decisão
+                                $statusAlerta = trim(strtolower($a->getStatus()));
+                                $idResponsavel = $a->getIdUsuarioAtendimento();
+                                $idLogado = $_SESSION['usuario']['id'] ?? 0; // Garante que não dê erro se não houver sessão
+                                ?>
+
+                                <?php if ($statusAlerta === 'pendente'): ?>
+                                    <button class="btn btn-primary btn-sm px-4 fw-bold btn-atender" data-id="<?php echo $a->getId(); ?>">
+                                        <i class="fa-solid fa-hand-pointer me-1"></i> Atender
+                                    </button>
+
+                                <?php elseif ($statusAlerta === 'em_andamento'): ?>
+                                    <?php if ($idResponsavel == $idLogado): ?>
+                                        <button class="btn btn-success btn-sm px-4 fw-bold btn-finalizar" data-id="<?php echo $a->getId(); ?>">
+                                            <i class="fa-solid fa-check-double me-1"></i> Finalizar
+                                        </button>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary py-2 px-3 opacity-75">
+                                            <i class="fa-solid fa-spinner fa-spin me-1"></i> Em andamento
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
-                            <div>
-                                <strong class="alert-title d-block h6 mb-1 text-danger">Limpeza - Amaciante (10% cheio)</strong>
-                                <p class="alert-subtitle mb-0 small text-muted">
-                                    <i class="fa-solid fa-location-dot me-1"></i> Corredor A2 — <i class="fa-solid fa-clock ms-2 me-1"></i> Há 15 minutos
-                                </p>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-danger rounded-pill px-3 py-2">5 unidades restantes</span>
-                        </div>
-                    </article>
+                        </article>
+                    <?php endforeach; endif; ?>
                 </div>
             </section>
         </main>
     </div>
+
+    <script>
+    document.addEventListener('click', function(e) {
+        // Ação de ATENDER
+        if (e.target.closest('.btn-atender')) {
+            const btn = e.target.closest('.btn-atender');
+            const idAlerta = btn.dataset.id;
+
+            // Chamada AJAX usando Fetch
+            fetch(`roteador.php?controller=Repositor&action=atender&id=${idAlerta}`)
+                .then(response => {
+                    if(response.ok) {
+                        // Recarrega apenas a lista ou a página para atualizar o visual
+                        location.reload(); 
+                    }
+                });
+        }
+
+        // Ação de FINALIZAR
+        if (e.target.closest('.btn-finalizar')) {
+            const btn = e.target.closest('.btn-finalizar');
+            const idAlerta = btn.dataset.id;
+
+            fetch(`roteador.php?controller=Repositor&action=finalizar&id=${idAlerta}`)
+                .then(response => {
+                    if(response.ok) {
+                        location.reload();
+                    }
+                });
+        }
+    });
+    </script>
 </body>
 </html>
