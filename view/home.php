@@ -163,27 +163,73 @@
             <span class="badge bg-primary-light mb-2" id="modalCategoria">Categoria</span>
             <div class="display-4 fw-bold text-primary mb-3" id="modalQtdInfo">0/0</div>
             <p class="text-muted">Status detalhado e histórico de reposição serão exibidos aqui.</p>
-            <div class="bg-light rounded p-5 mb-3">
-                <i class="fa-solid fa-chart-line fa-3x text-muted opacity-25"></i>
-                <p class="small text-muted mt-2">Área para Gráfico de Histórico</p>
+            <div class="bg-light rounded p-3 mb-3">
+                <canvas id="historicoGrafico" style="width: 100%; height: 200px;"></canvas>
             </div>
         </div>
         </div>
     </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    const sensorModal = document.getElementById('sensorModal');
-    sensorModal.addEventListener('show.bs.modal', event => {
-    const card = event.relatedTarget;
-    const nome = card.getAttribute('data-nome');
-    const cat = card.getAttribute('data-categoria');
-    const qtd = card.getAttribute('data-qtd');
-    const max = card.getAttribute('data-max');
+    let meuGrafico; 
 
-    sensorModal.querySelector('#modalNomeProduto').textContent = nome;
-    sensorModal.querySelector('#modalCategoria').textContent = cat;
-    sensorModal.querySelector('#modalQtdInfo').textContent = `${qtd} / ${max} un`;
+    document.addEventListener('DOMContentLoaded', function() {
+        const sensorModal = document.getElementById('sensorModal');
+        
+        sensorModal.addEventListener('show.bs.modal', event => {
+            const card = event.relatedTarget;
+            
+            // Puxando os dados do card
+            const nome = card.getAttribute('data-nome');
+            const cat = card.getAttribute('data-categoria');
+            const qtd = card.getAttribute('data-qtd');
+            const max = card.getAttribute('data-max');
+
+            // 1. Atualiza os textos do modal
+            document.getElementById('modalNomeProduto').textContent = nome;
+            document.getElementById('modalCategoria').textContent = cat;
+            document.getElementById('modalQtdInfo').textContent = `${qtd} / ${max} un`;
+
+            // 2. Lógica do Gráfico
+            const ctx = document.getElementById('historicoGrafico').getContext('2d');
+
+            if (meuGrafico) {
+                meuGrafico.destroy();
+            }
+
+            // Criando o gráfico
+            // Importante: Certifique-se de que a biblioteca Chart.js foi carregada!
+            meuGrafico = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00', 'Agora'],
+                    datasets: [{
+                        label: 'Estoque',
+                        data: [max, max - 2, max - 5, 2, 4, qtd], // Simulação de uso
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Ajuda a caber no layout
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            max: parseInt(max) + 2 // Define o topo do gráfico com base na capacidade
+                        }
+                    }
+                }
+            });
+        });
     });
     </script>
 </body>
