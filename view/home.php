@@ -1,3 +1,6 @@
+<?php
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,13 +12,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
     <style>
-        /* Ajustes específicos para o novo layout expandido */
         .shelf-card { transition: transform 0.2s, box-shadow 0.2s; border-radius: 15px; }
         .shelf-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
         .bg-primary-light { background-color: #e7f1ff; color: #0d6efd; }
         .bg-success-light { background-color: #d1e7dd; color: #0f5132; }
         .bg-danger-light { background-color: #f8d7da; color: #842029; }
-        .progress-label { font-size: 0.85rem; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -83,17 +84,20 @@
             <section class="card border-0 shadow-sm p-4">
                 <h2 class="h5 fw-bold mb-4"><i class="fa-solid fa-eye me-2 text-primary"></i>Status das Prateleiras</h2>
                 
-                <div class="row g-4">
+                <div class="row g-4" id="lista-sensores">
                     <?php foreach ($sensores as $s): 
                         $isCritico = $s->precisaRepoiscao();
                         $porcentagem = $s->getPorcentagemEstoque();
                         $corDestaque = $isCritico ? 'danger' : 'success';
+                        $id = $s->getId();
                     ?>
                     <div class="col-xl-4 col-md-6">
                         <article class="card shelf-card h-100 border-0 border-start border-5 border-<?php echo $corDestaque; ?> shadow-sm"
+                                id="card-sensor-<?php echo $id; ?>"
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#sensorModal"
+                                data-id="<?php echo $id; ?>"
                                 data-nome="<?php echo $s->getProduto()->getNome(); ?>"
                                 data-categoria="<?php echo $s->getProduto()->getCategoria()->getNome(); ?>"
                                 data-qtd="<?php echo $s->getQuantidadeAtual(); ?>"
@@ -110,7 +114,7 @@
                                         </small>
                                     </div>
                                     <div class="text-end">
-                                        <i class="fa-solid fa-circle <?php echo $isCritico ? 'text-danger' : 'text-success'; ?> small"></i>
+                                        <i id="status-icon-<?php echo $id; ?>" class="fa-solid fa-circle text-<?php echo $corDestaque; ?> small"></i>
                                     </div>
                                 </div>
 
@@ -119,30 +123,24 @@
 
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-end mb-2">
-                                        <span class="h2 fw-bold mb-0 <?php echo 'text-'.$corDestaque; ?>">
+                                        <span id="porcentagem-<?php echo $id; ?>" class="h2 fw-bold mb-0 text-<?php echo $corDestaque; ?>">
                                             <?php echo $porcentagem; ?>%
                                         </span>
-                                        <span class="text-muted small">
+                                        <span class="text-muted small" id="qtd-text-<?php echo $id; ?>">
                                             <strong><?php echo $s->getQuantidadeAtual(); ?></strong>/<?php echo $s->getCapacidadeMaxima(); ?> un
                                         </span>
                                     </div>
                                     <div class="progress" style="height: 10px; border-radius: 10px; background-color: #eee;">
-                                        <div class="progress-bar bg-<?php echo $corDestaque; ?> <?php echo $isCritico ? 'progress-bar-striped progress-bar-animated' : ''; ?>" 
-                                            role="progressbar" style="width: <?php echo $porcentagem; ?>%"></div>
+                                        <div id="barra-<?php echo $id; ?>" 
+                                             class="progress-bar bg-<?php echo $corDestaque; ?> <?php echo $isCritico ? 'progress-bar-striped progress-bar-animated' : ''; ?>" 
+                                             role="progressbar" style="width: <?php echo $porcentagem; ?>%"></div>
                                     </div>
                                 </div>
 
-                                <?php if($isCritico): ?>
-                                    <div class="mt-3 p-2 rounded bg-danger-light d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-truck-ramp-box"></i>
-                                        <span class="small fw-bold">Reposição Necessária</span>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="mt-3 p-2 rounded bg-success-light d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-check-circle"></i>
-                                        <span class="small fw-bold">Estoque Saudável</span>
-                                    </div>
-                                <?php endif; ?>
+                                <div id="alerta-reposicao-<?php echo $id; ?>" class="mt-3 p-2 rounded <?php echo $isCritico ? 'bg-danger-light' : 'bg-success-light'; ?> d-flex align-items-center gap-2">
+                                    <i class="fa-solid <?php echo $isCritico ? 'fa-truck-ramp-box' : 'fa-check-circle'; ?>"></i>
+                                    <span class="small fw-bold"><?php echo $isCritico ? 'Reposição Necessária' : 'Estoque Saudável'; ?></span>
+                                </div>
                             </div>
                         </article>
                     </div>
@@ -153,84 +151,185 @@
     </div>
 
     <div class="modal fade" id="sensorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-        <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold" id="modalNomeProduto">Detalhes do Sensor</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4 text-center">
-            <span class="badge bg-primary-light mb-2" id="modalCategoria">Categoria</span>
-            <div class="display-4 fw-bold text-primary mb-3" id="modalQtdInfo">0/0</div>
-            <p class="text-muted">Status detalhado e histórico de reposição serão exibidos aqui.</p>
-            <div class="bg-light rounded p-3 mb-3">
-                <canvas id="historicoGrafico" style="width: 100%; height: 200px;"></canvas>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="modalNomeProduto">Detalhes do Sensor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <input type="hidden" id="modalIdSensor" value="">
+                    <span class="badge bg-primary-light mb-2" id="modalCategoria">Categoria</span>
+                    <div class="display-4 fw-bold text-primary mb-3" id="modalQtdInfo">0/0</div>
+                    <p class="text-muted small mb-3">Variação do peso nas últimas horas</p>
+                    <div class="bg-light rounded p-3 mb-3" style="height: 250px;">
+                        <canvas id="historicoGrafico"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        </div>
     </div>
-    </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    let meuGrafico; 
+        let historicoSensores = {}; // Objeto para armazenar arrays de cada sensor
+        let meuGrafico;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const sensorModal = document.getElementById('sensorModal');
-        
-        sensorModal.addEventListener('show.bs.modal', event => {
-            const card = event.relatedTarget;
-            
-            // Puxando os dados do card
-            const nome = card.getAttribute('data-nome');
-            const cat = card.getAttribute('data-categoria');
-            const qtd = card.getAttribute('data-qtd');
-            const max = card.getAttribute('data-max');
+        document.addEventListener('DOMContentLoaded', function() {
+            const sensorModal = document.getElementById('sensorModal');
 
-            // 1. Atualiza os textos do modal
-            document.getElementById('modalNomeProduto').textContent = nome;
-            document.getElementById('modalCategoria').textContent = cat;
-            document.getElementById('modalQtdInfo').textContent = `${qtd} / ${max} un`;
+            // --- LOGICA DO MODAL ---
+            if (sensorModal) {
+                sensorModal.addEventListener('show.bs.modal', event => {
+                const card = event.relatedTarget;
+                const id = card.getAttribute('data-id');
+                const nome = card.getAttribute('data-nome');
+                const cat = card.getAttribute('data-categoria');
+                const qtd = card.getAttribute('data-qtd');
+                const max = card.getAttribute('data-max');
 
-            // 2. Lógica do Gráfico
-            const ctx = document.getElementById('historicoGrafico').getContext('2d');
+                document.getElementById('modalIdSensor').value = id;
+                document.getElementById('modalNomeProduto').textContent = nome;
+                document.getElementById('modalCategoria').textContent = cat;
+                document.getElementById('modalQtdInfo').textContent = `${qtd} / ${max} un`;
 
-            if (meuGrafico) {
-                meuGrafico.destroy();
-            }
+                // --- GERAR LABELS DE 5 EM 5 MINUTOS (Retroativo) ---
+                const labels = [];
+                const agora = new Date();
+                for (let i = 5; i >= 0; i--) {
+                    const tempo = new Date(agora.getTime() - i * 5 * 60000);
+                    labels.push(tempo.getHours() + ":" + tempo.getMinutes().toString().padStart(2, '0'));
+                }
 
-            // Criando o gráfico
-            // Importante: Certifique-se de que a biblioteca Chart.js foi carregada!
-            meuGrafico = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00', 'Agora'],
-                    datasets: [{
-                        label: 'Estoque',
-                        data: [max, max - 2, max - 5, 2, 4, qtd], // Simulação de uso
-                        borderColor: '#0d6efd',
-                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Ajuda a caber no layout
-                    plugins: {
-                        legend: { display: false }
+                const ctx = document.getElementById('historicoGrafico').getContext('2d');
+                if (meuGrafico) meuGrafico.destroy();
+
+                meuGrafico = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels, // Agora as labels são dinâmicas
+                        datasets: [{
+                            label: 'Estoque',
+                            data: historicoSensores[id] || [qtd], // Começa estável e muda com o simulador
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
                     },
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            max: parseInt(max) + 2 // Define o topo do gráfico com base na capacidade
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                max: parseInt(max),
+                                ticks: { stepSize: 1 }
+                            } 
                         }
                     }
-                }
+                });
             });
-        });
-    });
-    </script>
+            }
+
+            // --- FUNÇÃO DE ATUALIZAÇÃO ---
+            function atualizarInterface() {
+                fetch('/pi3-semestre/dados_estoque.php')
+                    .then(res => res.json())
+                    .then(sensores => {
+                        console.log("Atualizando interface...", sensores);
+
+                        sensores.forEach(s => {
+                            // Dentro do sensores.forEach(s => { ...
+                            if (!historicoSensores[s.id]) historicoSensores[s.id] = [];
+
+                            // Guarda o valor atual no histórico (limita aos últimos 20 pontos)
+                            historicoSensores[s.id].push(s.qtd);
+                            if (historicoSensores[s.id].length > 20) historicoSensores[s.id].shift();
+                            const barra = document.getElementById(`barra-${s.id}`);
+                            const txtQtd = document.getElementById(`qtd-text-${s.id}`);
+                            const txtPerc = document.getElementById(`porcentagem-${s.id}`);
+                            const card = document.getElementById(`card-sensor-${s.id}`);
+                            const icon = document.getElementById(`status-icon-${s.id}`);
+                            const alerta = document.getElementById(`alerta-reposicao-${s.id}`);
+
+                            if (barra) {
+                                barra.style.width = s.porcentagem + '%';
+                                if (txtPerc) txtPerc.textContent = s.porcentagem + '%';
+                                if (txtQtd) txtQtd.innerHTML = `<strong>${s.qtd}</strong>/${s.max} un`;
+
+                                if (s.critico) {
+                                    barra.className = 'progress-bar bg-danger progress-bar-striped progress-bar-animated';
+                                    if (txtPerc) txtPerc.className = 'h2 fw-bold mb-0 text-danger';
+                                    if (card) card.style.borderLeftColor = '#dc3545';
+                                    if (icon) icon.className = 'fa-solid fa-circle text-danger small';
+                                    if (alerta) {
+                                        alerta.className = 'mt-3 p-2 rounded bg-danger-light d-flex align-items-center gap-2';
+                                        alerta.innerHTML = '<i class="fa-solid fa-truck-ramp-box"></i><span class="small fw-bold">Reposição Necessária</span>';
+                                    }
+                                } else {
+                                    barra.className = 'progress-bar bg-success';
+                                    if (txtPerc) txtPerc.className = 'h2 fw-bold mb-0 text-success';
+                                    if (card) card.style.borderLeftColor = '#198754';
+                                    if (icon) icon.className = 'fa-solid fa-circle text-success small';
+                                    if (alerta) {
+                                        alerta.className = 'mt-3 p-2 rounded bg-success-light d-flex align-items-center gap-2';
+                                        alerta.innerHTML = '<i class="fa-solid fa-check-circle"></i><span class="small fw-bold">Estoque Saudável</span>';
+                                    }
+                                }
+                            }
+                        // ... dentro do seu sensores.forEach(s => { ...
+                        const modalAberto = document.querySelector('#sensorModal.show');
+                        if (modalAberto) {
+                            const idNoModal = document.getElementById('modalIdSensor').value;
+
+                            if (idNoModal == s.id && meuGrafico) {
+                                // Atualiza texto
+                                document.getElementById('modalQtdInfo').textContent = `${s.qtd} / ${s.max} un`;
+
+                                // 1. Gera o horário atual para a nova label
+                                const agora = new Date();
+                                const novaHora = agora.getHours() + ":" + agora.getMinutes().toString().padStart(2, '0');
+
+                                // 2. Só adiciona novo ponto se o último horário for diferente (evita duplicar pontos no mesmo minuto)
+                                if (meuGrafico.data.labels[meuGrafico.data.labels.length - 1] !== novaHora) {
+                                    meuGrafico.data.labels.shift(); // Remove o horário mais velho
+                                    meuGrafico.data.labels.push(novaHora); // Adiciona o atual
+                                    
+                                    meuGrafico.data.datasets[0].data.shift(); // Remove dado velho
+                                    meuGrafico.data.datasets[0].data.push(s.qtd); // Adiciona dado novo do banco
+                                    
+                                    meuGrafico.update(); // Renderiza a mudança
+                                }
+                            }
+                        }
+                    });
+                    })
+                    .catch(err => console.error("Erro na atualização:", err));
+            }
+
+            // --- INTERVALO DE SIMULAÇÃO ---
+            setInterval(() => {
+                console.log("Chamando simulador...");
+                fetch('/pi3-semestre/simulador.php')
+                    .then(res => {
+                        if (res.ok) {
+                            console.log("Banco atualizado pelo simulador!");
+                            atualizarInterface();
+                        } else {
+                            console.error("Erro ao chamar o simulador (404 ou 500)");
+                        }
+                    })
+                    .catch(err => console.error("Erro no fetch do simulador:", err));
+            }, 5000);
+
+            // Executa uma vez ao carregar para garantir dados frescos
+            atualizarInterface();
+
+        }); // <-- ESTA É A CHAVE E PARÊNTESE QUE FALTAVAM PARA FECHAR O DOMContentLoaded
+        </script>
 </body>
 </html>

@@ -7,14 +7,18 @@ class Sensor {
     private $lado; // 'esquerdo' ou 'direito'
     private $pesoAtual;
     private $capacidadeMaxima;
+    private $quantidadeAtual; // Calculada a partir do peso e do peso unitário do produto
     private $minimoReposicao; // Peso mínimo para acionar reposição
     private $produto; // Objeto da classe Produto
     private $status; 
 
     // Calcula a quantidade de itens baseado no peso
     public function getQuantidadeAtual() {
-        if ($this->produto->getPesoUnitario() <= 0) return 0;
-        return floor($this->pesoAtual / $this->produto->getPesoUnitario());
+        return $this->quantidadeAtual;
+    }
+    public function setQuantidadeAtual($quantidade) {
+        $this->quantidadeAtual = $quantidade;
+        $this->pesoAtual = $quantidade * $this->produto->getPesoUnitario();
     }
 
     // O cálculo da porcentagem que você pediu

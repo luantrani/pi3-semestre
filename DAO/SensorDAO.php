@@ -1,5 +1,8 @@
 <?php
-
+include_once 'Conexao.php';
+include_once 'model/Categoria.php';
+include_once 'model/Sensor.php';
+include_once 'model/Produto.php';
 class SensorDAO {
     private $conexao;
     
@@ -70,10 +73,20 @@ class SensorDAO {
     }
 }
 
-    public function atualizarPeso($id_sensor, $novo_peso) {
-        $sql = "UPDATE sensor SET peso_atual = ?, ultima_atualizacao = NOW() WHERE id = ?";
-        $stmt = $this->conexao->prepare($sql);
-        $stmt->execute([$novo_peso, $id_sensor]);
+    public function atualizarPeso($sensor) {
+        try {
+            $sql = "UPDATE sensor SET peso_atual = :peso WHERE id = :id";
+            $stmt = $this->conexao->prepare($sql);
+            
+            // Garanta que o getter do peso está retornando o valor correto
+            $stmt->bindValue(":peso", $sensor->getPesoAtual());
+            $stmt->bindValue(":id", $sensor->getId());
+            
+            return $stmt->execute(); // Sem o execute, o banco não muda!
+        } catch (Exception $e) {
+            error_log("Erro no SensorDAO: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function listarAlertasReposicao() {
@@ -110,6 +123,19 @@ class SensorDAO {
             return $stmt->execute([$sensor->getId()]);
         } catch (PDOException $e) {
             throw new Exception("Erro ao excluir sensor do banco de dados. " . $e->getMessage());
+        }
+    }
+
+    public function atualizarQuantidade(Sensor $sensor) {
+        try {
+            $sql = "UPDATE sensor SET quantidade_atual = :qtd WHERE id = :id";
+            $stmt = $this->conexao->prepare($sql);
+            $stmt->bindValue(":qtd", $sensor->getQuantidadeAtual());
+            $stmt->bindValue(":id", $sensor->getId());
+            
+            return $stmt->execute(); // IMPORTANTE: Precisa do execute para salvar!
+        } catch (Exception $e) {
+            print "Erro ao atualizar banco: " . $e->getMessage();
         }
     }
 
