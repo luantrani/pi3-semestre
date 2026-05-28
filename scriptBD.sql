@@ -141,3 +141,7 @@ MODIFY COLUMN status ENUM('pendente', 'em_andamento', 'resolvido') DEFAULT 'pend
 ALTER TABLE historico_alertas 
 ADD COLUMN id_usuario_atendimento INT,
 ADD FOREIGN KEY (id_usuario_atendimento) REFERENCES usuarios(id);
+
+
+ALTER TABLE sensor MODIFY COLUMN id VARCHAR(50) NOT NULL;
+-- Isso remove o AUTO_INCREMENT e permite que você envie o seu próprio ID.

@@ -44,9 +44,6 @@
                     <h1 class="fw-bold h2 mb-1">Painel do Repositor</h1>
                     <p class="text-muted small mb-0">Prioridades de abastecimento em tempo real.</p>
                 </div>
-                <a class="btn btn-primary fw-bold shadow-sm px-4" href="roteador.php?controller=RepositorCadastro&action=index">
-                    <i class="fa-solid fa-user-plus me-2"></i> Cadastrar Repositor
-                </a>
             </header>
 
             <section class="row g-4 mb-4">

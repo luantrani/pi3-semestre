@@ -36,7 +36,7 @@ try {
             'max' => $s->getCapacidadeMaxima(),
             // round(valor, casas_decimais)
             'porcentagem' => round($porcentagemRaw, 1), 
-            'critico' => $quantidadeCalculada <= $s->getMinimoReposicao()
+            'status' => $s->getSituacaoEstoque(),
         ];
     }
     echo json_encode($res);

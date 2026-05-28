@@ -29,8 +29,8 @@ class SensorController {
         }
     }
 
-    public function cadastrarSensor() {
-       try {
+public function cadastrarSensor() {
+    try {
         $idSensor = trim($_POST['idSensor'] ?? '');
         $nome = trim($_POST['nomeSensor'] ?? '');
         $corredor = trim($_POST['corredor'] ?? '');
@@ -38,10 +38,15 @@ class SensorController {
         $capacidadeMaxima = intval($_POST['capacidade_maxima'] ?? 0);
         $minimoReposicao = intval($_POST['minimo_reposicao'] ?? 0);
         $idProduto = intval($_POST['id_produto'] ?? 0);
+
+        // Define a quantidade inicial (ou usa a máxima se o campo estiver vazio)
+        $qtdInicial = intval($_POST['quantidade_atual'] ?? $capacidadeMaxima);
+
         $produto = $this->produtoDAO->buscarPorId($idProduto);
         if (!$produto) {
             throw new Exception("Produto não encontrado");
         }
+
         $sensor = new Sensor();
         $sensor->setId($idSensor);
         $sensor->setNome($nome);
@@ -49,13 +54,26 @@ class SensorController {
         $sensor->setLado($lado);
         $sensor->setCapacidadeMaxima($capacidadeMaxima);
         $sensor->setMinimoReposicao($minimoReposicao);
+        
+        // --- A ORDEM AQUI É IMPORTANTE ---
+        // 1º Setamos o produto para o Model saber o peso unitário
         $sensor->setProduto($produto);
+        
+        // 2º Setamos a quantidade (o Model vai calcular o peso sozinho agora)
+        $sensor->setQuantidadeAtual($qtdInicial);
+        
+        $sensor->setStatus('Ativo');
+
         $this->sensorDAO->inserir($sensor);
-            header("Location: roteador.php?controller=Sensor&action=index&status=sucesso");
+
+        header("Location: roteador.php?controller=Sensor&action=index&status=sucesso");
+        exit;
     } catch (Exception $e) {
-        throw new Exception("Erro ao cadastrar sensor: " . $e->getMessage());
+        // Exibe o erro na tela para você debugar se algo der errado
+        echo "Erro: " . $e->getMessage();
+        exit;
     }
-    }
+}
 
     public function listarSensores() {
         try {
@@ -66,17 +84,18 @@ class SensorController {
     }
 
     public function atualizarSensor(Sensor $sensor) {
-        try {
-            $produto = $this->produtoDAO->buscarPorId($sensor->getIdProduto());
-            if (!$produto) {
-                throw new Exception("Produto não encontrado");
-            }
-            $sensor = new Sensor();
-            $this->sensorDAO->atualizar($sensor);
-        } catch (Exception $e) {
-            throw new Exception("Erro ao atualizar sensor: " . $e->getMessage());
+    try {
+        // Não crie um "new Sensor()", use o que veio por parâmetro!
+        $produto = $this->produtoDAO->buscarPorId($sensor->getProduto()->getId());
+        if (!$produto) {
+            throw new Exception("Produto não encontrado");
         }
+        $sensor->setProduto($produto);
+        $this->sensorDAO->atualizar($sensor);
+    } catch (Exception $e) {
+        throw new Exception("Erro ao atualizar sensor: " . $e->getMessage());
     }
+}
 
     public function excluirSensor(Sensor $sensor) {
         try {
@@ -84,5 +103,9 @@ class SensorController {
         } catch (Exception $e) {
             throw new Exception("Erro ao excluir sensor: " . $e->getMessage());
         }
-}
+    }
+
+    public function getPesoUnitario() {
+    return $this->peso_unitario;
+    }
 }

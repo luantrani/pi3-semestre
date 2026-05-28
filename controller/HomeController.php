@@ -30,11 +30,13 @@ class HomeController {
         $totalCriticos = 0;
 
         foreach ($sensores as $s) {
-        if ($s->precisaRepoiscao()) {
-            $totalCriticos++;
-        } else {
-            // Se não precisa de reposição, ele é considerado saudável/cheio para o KPI
+        // Usando o método que criamos no Model Sensor.php
+        if ($s->getPorcentagemEstoque() >= 80) {
             $totalCheios++;
+        }
+        
+        if ($s->precisaReposicao()) {
+            $totalCriticos++;
         }
 
     }

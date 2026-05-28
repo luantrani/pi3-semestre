@@ -86,10 +86,16 @@
                 
                 <div class="row g-4" id="lista-sensores">
                     <?php foreach ($sensores as $s): 
-                        $isCritico = $s->precisaRepoiscao();
+                        $isCritico = $s->precisaReposicao();
                         $porcentagem = $s->getPorcentagemEstoque();
-                        $corDestaque = $isCritico ? 'danger' : 'success';
                         $id = $s->getId();
+                        if ($isCritico) {
+                            $corDestaque = 'danger';
+                        } elseif ($porcentagem < 50) {
+                            $corDestaque = 'warning'; // Amarelo para atenção
+                        } else {
+                            $corDestaque = 'success'; // Verde apenas se estiver acima de 50%
+                        }
                     ?>
                     <div class="col-xl-4 col-md-6">
                         <article class="card shelf-card h-100 border-0 border-start border-5 border-<?php echo $corDestaque; ?> shadow-sm"
