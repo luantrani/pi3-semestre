@@ -177,18 +177,18 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        let historicoSensores = {}; // Objeto para armazenar arrays de cada sensor
-        let meuGrafico;
+<script>
+    let historicoSensores = {}; 
+    let meuGrafico;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const sensorModal = document.getElementById('sensorModal');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sensorModal = document.getElementById('sensorModal');
 
-            // --- LOGICA DO MODAL ---
-            if (sensorModal) {
-                sensorModal.addEventListener('show.bs.modal', event => {
+        // --- LÓGICA DO MODAL ---
+        if (sensorModal) {
+            sensorModal.addEventListener('show.bs.modal', event => {
                 const card = event.relatedTarget;
                 const id = card.getAttribute('data-id');
                 const nome = card.getAttribute('data-nome');
@@ -201,7 +201,6 @@
                 document.getElementById('modalCategoria').textContent = cat;
                 document.getElementById('modalQtdInfo').textContent = `${qtd} / ${max} un`;
 
-                // --- GERAR LABELS DE 5 EM 5 MINUTOS (Retroativo) ---
                 const labels = [];
                 const agora = new Date();
                 for (let i = 5; i >= 0; i--) {
@@ -215,10 +214,10 @@
                 meuGrafico = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: labels, // Agora as labels são dinâmicas
+                        labels: labels,
                         datasets: [{
                             label: 'Estoque',
-                            data: historicoSensores[id] || [qtd], // Começa estável e muda com o simulador
+                            data: historicoSensores[id] || [qtd],
                             borderColor: '#0d6efd',
                             backgroundColor: 'rgba(13, 110, 253, 0.1)',
                             fill: true,
@@ -230,112 +229,109 @@
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: { 
-                            y: { 
-                                beginAtZero: true, 
-                                max: parseInt(max),
-                                ticks: { stepSize: 1 }
-                            } 
+                            y: { beginAtZero: true, max: parseInt(max) } 
                         }
                     }
                 });
             });
-            }
+        }
 
-            // --- FUNÇÃO DE ATUALIZAÇÃO ---
-            function atualizarInterface() {
-                fetch('/pi3-semestre/dados_estoque.php')
-                    .then(res => res.json())
-                    .then(sensores => {
-                        console.log("Atualizando interface...", sensores);
+        // --- FUNÇÃO DE ATUALIZAÇÃO ---
+        function atualizarInterface() {
+            // Se você estiver no localhost, verifique se o caminho está correto
+            fetch('dados_estoque.php') 
+                .then(res => res.json())
+                .then(sensores => {
+                    sensores.forEach(s => {
+                        // 1. Atualiza histórico para o gráfico
+                        if (!historicoSensores[s.id]) historicoSensores[s.id] = [];
+                        historicoSensores[s.id].push(s.qtd);
+                        if (historicoSensores[s.id].length > 20) historicoSensores[s.id].shift();
 
-                        sensores.forEach(s => {
-                            // Dentro do sensores.forEach(s => { ...
-                            if (!historicoSensores[s.id]) historicoSensores[s.id] = [];
+                        // 2. Seleciona elementos do card
+                        const barra = document.getElementById(`barra-${s.id}`);
+                        const txtQtd = document.getElementById(`qtd-text-${s.id}`);
+                        const txtPerc = document.getElementById(`porcentagem-${s.id}`);
+                        const card = document.getElementById(`card-sensor-${s.id}`);
+                        const icon = document.getElementById(`status-icon-${s.id}`);
+                        const alerta = document.getElementById(`alerta-reposicao-${s.id}`);
 
-                            // Guarda o valor atual no histórico (limita aos últimos 20 pontos)
-                            historicoSensores[s.id].push(s.qtd);
-                            if (historicoSensores[s.id].length > 20) historicoSensores[s.id].shift();
-                            const barra = document.getElementById(`barra-${s.id}`);
-                            const txtQtd = document.getElementById(`qtd-text-${s.id}`);
-                            const txtPerc = document.getElementById(`porcentagem-${s.id}`);
-                            const card = document.getElementById(`card-sensor-${s.id}`);
-                            const icon = document.getElementById(`status-icon-${s.id}`);
-                            const alerta = document.getElementById(`alerta-reposicao-${s.id}`);
+                        if (barra) {
+                            // Define regras de cores baseadas na porcentagem
+                            let classeCor = 'success';
+                            let textoStatus = 'Estoque Saudável';
+                            let iconeStatus = 'fa-check-circle';
+                            let hexCor = '#198754';
 
-                            if (barra) {
-                                barra.style.width = s.porcentagem + '%';
-                                if (txtPerc) txtPerc.textContent = s.porcentagem + '%';
-                                if (txtQtd) txtQtd.innerHTML = `<strong>${s.qtd}</strong>/${s.max} un`;
-
-                                if (s.critico) {
-                                    barra.className = 'progress-bar bg-danger progress-bar-striped progress-bar-animated';
-                                    if (txtPerc) txtPerc.className = 'h2 fw-bold mb-0 text-danger';
-                                    if (card) card.style.borderLeftColor = '#dc3545';
-                                    if (icon) icon.className = 'fa-solid fa-circle text-danger small';
-                                    if (alerta) {
-                                        alerta.className = 'mt-3 p-2 rounded bg-danger-light d-flex align-items-center gap-2';
-                                        alerta.innerHTML = '<i class="fa-solid fa-truck-ramp-box"></i><span class="small fw-bold">Reposição Necessária</span>';
-                                    }
-                                } else {
-                                    barra.className = 'progress-bar bg-success';
-                                    if (txtPerc) txtPerc.className = 'h2 fw-bold mb-0 text-success';
-                                    if (card) card.style.borderLeftColor = '#198754';
-                                    if (icon) icon.className = 'fa-solid fa-circle text-success small';
-                                    if (alerta) {
-                                        alerta.className = 'mt-3 p-2 rounded bg-success-light d-flex align-items-center gap-2';
-                                        alerta.innerHTML = '<i class="fa-solid fa-check-circle"></i><span class="small fw-bold">Estoque Saudável</span>';
-                                    }
-                                }
+                            if (s.porcentagem <= 20) {
+                                classeCor = 'danger';
+                                textoStatus = 'Reposição Necessária';
+                                iconeStatus = 'fa-truck-ramp-box';
+                                hexCor = '#dc3545';
+                            } else if (s.porcentagem < 50) {
+                                classeCor = 'warning';
+                                textoStatus = 'Atenção: Estoque Baixo';
+                                iconeStatus = 'fa-circle-exclamation';
+                                hexCor = '#ffc107';
                             }
-                        // ... dentro do seu sensores.forEach(s => { ...
+
+                            // Aplica as mudanças visuais
+                            barra.style.width = s.porcentagem + '%';
+                            barra.className = `progress-bar bg-${classeCor} ${classeCor === 'danger' ? 'progress-bar-striped progress-bar-animated' : ''}`;
+                            
+                            if (txtPerc) {
+                                txtPerc.textContent = s.porcentagem + '%';
+                                txtPerc.className = `h2 fw-bold mb-0 text-${classeCor}`;
+                            }
+                            if (txtQtd) txtQtd.innerHTML = `<strong>${s.qtd}</strong>/${s.max} un`;
+                            if (card) card.style.borderLeftColor = hexCor;
+                            if (icon) icon.className = `fa-solid fa-circle text-${classeCor} small`;
+                            
+                            if (alerta) {
+                                alerta.className = `mt-3 p-2 rounded bg-${classeCor}-light d-flex align-items-center gap-2`;
+                                alerta.innerHTML = `<i class="fa-solid ${iconeStatus}"></i><span class="small fw-bold">${textoStatus}</span>`;
+                            }
+                        }
+
+                        // 3. Atualiza o gráfico se o modal deste sensor estiver aberto
                         const modalAberto = document.querySelector('#sensorModal.show');
                         if (modalAberto) {
                             const idNoModal = document.getElementById('modalIdSensor').value;
-
                             if (idNoModal == s.id && meuGrafico) {
-                                // Atualiza texto
                                 document.getElementById('modalQtdInfo').textContent = `${s.qtd} / ${s.max} un`;
-
-                                // 1. Gera o horário atual para a nova label
+                                
                                 const agora = new Date();
                                 const novaHora = agora.getHours() + ":" + agora.getMinutes().toString().padStart(2, '0');
 
-                                // 2. Só adiciona novo ponto se o último horário for diferente (evita duplicar pontos no mesmo minuto)
                                 if (meuGrafico.data.labels[meuGrafico.data.labels.length - 1] !== novaHora) {
-                                    meuGrafico.data.labels.shift(); // Remove o horário mais velho
-                                    meuGrafico.data.labels.push(novaHora); // Adiciona o atual
-                                    
-                                    meuGrafico.data.datasets[0].data.shift(); // Remove dado velho
-                                    meuGrafico.data.datasets[0].data.push(s.qtd); // Adiciona dado novo do banco
-                                    
-                                    meuGrafico.update(); // Renderiza a mudança
+                                    meuGrafico.data.labels.shift();
+                                    meuGrafico.data.labels.push(novaHora);
+                                    meuGrafico.data.datasets[0].data.shift();
+                                    meuGrafico.data.datasets[0].data.push(s.qtd);
+                                    meuGrafico.update();
                                 }
                             }
                         }
                     });
-                    })
-                    .catch(err => console.error("Erro na atualização:", err));
-            }
+                })
+                .catch(err => console.error("Erro na atualização:", err));
+        }
 
-            // --- INTERVALO DE SIMULAÇÃO ---
-            setInterval(() => {
-                console.log("Chamando simulador...");
-                fetch('/pi3-semestre/simulador.php')
+        // --- INTERVALO DE SIMULAÇÃO ---
+        setInterval(() => {
+            if (!document.hidden) {
+                fetch('simulador.php')
                     .then(res => {
-                        if (res.ok) {
-                            console.log("Banco atualizado pelo simulador!");
-                            atualizarInterface();
-                        } else {
-                            console.error("Erro ao chamar o simulador (404 ou 500)");
-                        }
+                        if (res.ok) atualizarInterface();
                     })
-                    .catch(err => console.error("Erro no fetch do simulador:", err));
-            }, 5000);
+                    .catch(err => console.error("Erro no simulador:", err));
+            }
+        }, 5000);
 
-            // Executa uma vez ao carregar para garantir dados frescos
-            atualizarInterface();
+        // Primeira carga
+        atualizarInterface();
 
-        }); // <-- ESTA É A CHAVE E PARÊNTESE QUE FALTAVAM PARA FECHAR O DOMContentLoaded
-        </script>
+    }); // Fim do DOMContentLoaded
+</script>
 </body>
 </html>

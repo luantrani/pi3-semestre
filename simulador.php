@@ -1,30 +1,33 @@
 <?php
 // simulador.php
+require_once 'DAO/Conexao.php';
 require_once 'DAO/SensorDAO.php';
-// Certifique-se de carregar os models de Sensor e Produto
+// ... outros requires
 
 $dao = new SensorDAO();
 $sensores = $dao->listarTodos();
 
 foreach ($sensores as $s) {
     $produto = $s->getProduto();
-    $pesoUnitario = $produto->getPesoUnitario(); // Você precisará criar esse getter no Model Produto
-    
-    // Simula a retirada ou adição de UNIDADES (ex: tirou 1 ou 2 produtos)
-    $variacaoUnidades = rand(-1, 1); 
-    
-    // Calcula o novo peso com base na variação de unidades
-    $pesoVariacao = $variacaoUnidades * $pesoUnitario;
-    $novoPeso = $s->getPesoAtual() + $pesoVariacao;
+    if (!$produto || $produto->getPesoUnitario() <= 0) continue;
 
-    // Limites: não menos que 0, não mais que a capacidade máxima * peso unitário
-    $pesoMaximoPermitido = $s->getCapacidadeMaxima() * $pesoUnitario;
-    
-    if ($novoPeso < 0) $novoPeso = 0;
-    if ($novoPeso > $pesoMaximoPermitido) $novoPeso = $pesoMaximoPermitido;
+    $pesoUnitario = $produto->getPesoUnitario();
+    $quantidadeAtual = $s->getQuantidadeAtual();
 
-    // Atualiza o PESO no banco
-    $s->setPesoAtual($novoPeso);
-    $dao->atualizarPeso($s); // Crie este método no DAO para dar UPDATE na coluna peso_atual
+    // Simula a chance de venda (ex: 50% de chance de reduzir 1 unidade)
+    $vendeu = rand(0, 1); 
+
+    if ($quantidadeAtual > 0 && $vendeu == 1) {
+        $novaQtd = $quantidadeAtual - 1;
+        $novoPeso = $novaQtd * $pesoUnitario;
+
+        // Atualiza o objeto e salva no banco
+        $s->atualizarPorSensor($novoPeso);
+        $dao->salvarLeituraSensor($s); 
+        
+        echo "Sensor [{$s->getId()}]: Item vendido! Restam: {$novaQtd}<br>";
+    } else {
+        echo "Sensor [{$s->getId()}]: Sem alteração ou estoque zerado.<br>";
+    }
 }
-echo "Simulação de peso concluída!";
+echo "<strong>Simulação de consumo concluída!</strong>";

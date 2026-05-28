@@ -3,7 +3,7 @@
 class RepositorController {
     private $usuarioDAO;
     private $sensorDAO;
-    private $HistoricoAlertasDAO; // O nome definido aqui deve ser usado em todo o arquivo
+    private $HistoricoAlertasDAO; 
 
     public function __construct() {
         $this->usuarioDAO = new UsuarioDAO();
@@ -13,9 +13,7 @@ class RepositorController {
 
     public function index() {
         try {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            if (session_status() === PHP_SESSION_NONE) session_start();
 
             if (!isset($_SESSION['usuario'])) {
                 session_destroy();
@@ -25,8 +23,7 @@ class RepositorController {
 
             $sensores = $this->sensorDAO->listarTodos();
             $alertas = $this->HistoricoAlertasDAO->buscarAlertasAtivos(); 
-            $totalAlertas = count($alertas);
-
+            
             require_once __DIR__ . '/../view/repositor.php';
 
         } catch (Exception $e) {
@@ -40,10 +37,8 @@ class RepositorController {
         $idAlerta = $_GET['id'] ?? null;
         $idUsuario = $_SESSION['usuario']['id'] ?? null;
         
-        // CORREÇÃO: Usando o nome correto HistoricoAlertasDAO
         if ($idAlerta && $idUsuario) {
             $sucesso = $this->HistoricoAlertasDAO->assumirAlerta($idAlerta, $idUsuario);
-            
             if ($sucesso) {
                 http_response_code(200);
                 echo "OK";
@@ -51,27 +46,49 @@ class RepositorController {
                 http_response_code(500);
                 echo "Erro ao assumir no banco";
             }
-        } else {
-            http_response_code(400);
-            echo "Dados insuficientes";
         }
-        exit; // Importante para não carregar o HTML da view no meio do AJAX
+        exit; 
     }
 
     public function finalizar() {
         $idAlerta = $_GET['id'] ?? null;
         
         if ($idAlerta) {
-            // CORREÇÃO: Usando o nome correto HistoricoAlertasDAO
-            $sucesso = $this->HistoricoAlertasDAO->finalizarAlerta($idAlerta);
+            // 1. Usa o objeto que já foi criado no constructor
+            // Certifique-se que o método buscarPorId existe no seu HistoricoAlertasDAO
+            $alerta = $this->HistoricoAlertasDAO->buscarPorId($idAlerta);
             
-            if ($sucesso) {
+            if ($alerta) {
+                $sensor = $alerta->getSensor();
+                $produto = $sensor->getProduto();
+
+                // 2. Lógica de reposição total
+                $capacidadeMax = $sensor->getCapacidadeMaxima();
+                $pesoUnitario = $produto->getPesoUnitario();
+                $novoPesoTotal = $capacidadeMax * $pesoUnitario;
+
+                // 3. Atualiza o Sensor usando o DAO que já existe na classe
+                $sensor->setQuantidadeAtual($capacidadeMax);
+                $sensor->setPesoAtual($novoPesoTotal);
+                $this->sensorDAO->salvarLeituraSensor($sensor);
+
+                // 4. Finaliza o Alerta
+                $alerta->setStatus('concluido');
+                $alerta->setDataFim(date('Y-m-d H:i:s'));
+                
+                // Ajuste aqui para o nome do método que você tem no HistoricoAlertasDAO
+                $this->HistoricoAlertasDAO->atualizar($alerta);
+
                 http_response_code(200);
-                echo "OK";
+                echo "Finalizado";
             } else {
-                http_response_code(500);
+                http_response_code(404);
+                echo "Alerta não encontrado";
             }
+        } else {
+            http_response_code(400);
+            echo "ID inválido";
         }
-        exit;
+        exit; // Essencial para o AJAX não receber lixo de memória
     }
 }

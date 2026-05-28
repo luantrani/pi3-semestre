@@ -10,36 +10,32 @@ class Sensor {
     private $quantidadeAtual; 
     private $minimoReposicao; 
     private $produto; 
-    private $statusDispositivo; // 'Ativo' ou 'Inativo' (do banco)
+    private $statusDispositivo;
 
-    // --- LÓGICA DE SINCRONIZAÇÃO ---
+    // --- LÓGICA DE SINCRONIZAÇÃO (USAR PARA ALTERAÇÕES EM TEMPO REAL) ---
 
-    // Quando você define a QUANTIDADE (ex: no Cadastro), ele calcula o PESO
-    public function setQuantidadeAtual($quantidade) {
+    // Use quando o REPOSITOR mexer no sistema
+    public function atualizarManualPorQuantidade($quantidade) {
         $this->quantidadeAtual = $quantidade;
         if ($this->produto) {
             $this->pesoAtual = $quantidade * $this->produto->getPesoUnitario();
         }
     }
 
-    // Quando o simulador define o PESO, ele calcula a QUANTIDADE
-    public function setPesoAtual($pesoAtual) {
-        $this->pesoAtual = $pesoAtual;
+    // Use quando o ESP32 (IOT) enviar dados
+    public function atualizarPorSensor($pesoBruto) {
+        $this->pesoAtual = $pesoBruto;
         if ($this->produto && $this->produto->getPesoUnitario() > 0) {
-            $this->quantidadeAtual = floor($pesoAtual / $this->produto->getPesoUnitario());
+            $this->quantidadeAtual = floor($pesoBruto / $this->produto->getPesoUnitario());
         }
     }
 
     // --- MÉTODOS DE INTELIGÊNCIA ---
+
     public function getPorcentagemEstoque() {
-        // Se a capacidade for 0 ou não estiver setada, retorna 0% para não bugar
-        if (empty($this->capacidadeMaxima) || $this->capacidadeMaxima <= 0) {
-            return 0;
-        }
+        if (empty($this->capacidadeMaxima) || $this->capacidadeMaxima <= 0) return 0;
         
-        $atual = $this->getQuantidadeAtual();
-        $porcentagem = ($atual / $this->capacidadeMaxima) * 100;
-        
+        $porcentagem = ($this->getQuantidadeAtual() / $this->capacidadeMaxima) * 100;
         return ($porcentagem > 100) ? 100 : round($porcentagem, 1);
     }
 
@@ -47,63 +43,43 @@ class Sensor {
         return $this->getQuantidadeAtual() <= $this->minimoReposicao;
     }
 
-    // Retorna a "situação visual" do estoque
-   public function getSituacaoEstoque() {
-    $atual = $this->getQuantidadeAtual();
-    $maximo = $this->getCapacidadeMaxima();
+    public function getSituacaoEstoque() {
+        $atual = $this->getQuantidadeAtual();
+        $maximo = $this->getCapacidadeMaxima();
 
-    // Se estiver abaixo ou igual ao mínimo, é CRÍTICO (Prioridade 1)
-    if ($atual <= $this->getMinimoReposicao()) {
-        return 'critico'; 
+        if ($atual <= $this->minimoReposicao) return 'critico'; 
+        if ($maximo <= 0) return 'indisponivel';
+
+        $porcentagem = ($atual / $maximo) * 100;
+        if ($porcentagem >= 80) return 'cheio';
+        
+        return 'medio';
     }
 
-    // Se não tem capacidade definida, evita erro de divisão por zero
-    if ($maximo <= 0) return 'indisponivel';
+    // --- GETTERS E SETTERS (PARA O DAO E USO GERAL) ---
 
-    $porcentagem = ($atual / $maximo) * 100;
-
-    if ($porcentagem >= 80) {
-        return 'cheio';
-    }
+    public function setQuantidadeAtual($qtd) { $this->quantidadeAtual = $qtd; } // Setter simples para o DAO
+    public function getQuantidadeAtual() { return $this->quantidadeAtual ?? 0; }
     
-    return 'medio';
-}
+    public function setPesoAtual($peso) { $this->pesoAtual = $peso; } // Setter simples para o DAO
+    public function getPesoAtual() { return $this->pesoAtual ?? 0.0; }
 
-    // --- GETTERS E SETTERS PADRÃO ---
+    public function setProduto(Produto $produto) { $this->produto = $produto; }
+    public function getProduto() { return $this->produto; }
 
-    public function getQuantidadeAtual() { 
-        return $this->quantidadeAtual ?? 0; 
-    }
-    public function getPesoAtual() { return $this->pesoAtual; }
+    // Demais getters e setters padrão...
     public function getId() { return $this->id; }
     public function setId($id) { $this->id = $id; }
     public function getNome() { return $this->nome; }
-    public function setNome($nome) { $this->nome = $nome; }
+    public function setNome($n) { $this->nome = $n; }
     public function getCorredor() { return $this->corredor; }
-    public function setCorredor($corredor) { $this->corredor = $corredor; }
+    public function setCorredor($c) { $this->corredor = $c; }
     public function getLado() { return $this->lado; }
-    public function setLado($lado) { $this->lado = $lado; }
+    public function setLado($l) { $this->lado = $l; }
     public function getCapacidadeMaxima() { return $this->capacidadeMaxima; }
-    public function setCapacidadeMaxima($max) { $this->capacidadeMaxima = $max; }
+    public function setCapacidadeMaxima($m) { $this->capacidadeMaxima = $m; }
     public function getMinimoReposicao() { return $this->minimoReposicao; }
     public function setMinimoReposicao($min) { $this->minimoReposicao = $min; }
-    public function getProduto() { return $this->produto; }
-    public function setProduto(Produto $produto) {
-        $this->produto = $produto;
-        
-        // CORREÇÃO: Se já temos um peso carregado do banco, 
-        // agora que o produto chegou, calculamos a quantidade.
-        if ($this->pesoAtual > 0 && $this->produto->getPesoUnitario() > 0) {
-            $this->quantidadeAtual = floor($this->pesoAtual / $this->produto->getPesoUnitario());
-        }
-        
-        // Se já definiram uma quantidade antes, recalcula o peso
-        if ($this->quantidadeAtual > 0) {
-            $this->setQuantidadeAtual($this->quantidadeAtual);
-        }
-    }
-    
-    // Status de conexão/sistema
     public function getStatus() { return $this->statusDispositivo; }
-    public function setStatus($status) { $this->statusDispositivo = $status; }
+    public function setStatus($s) { $this->statusDispositivo = $s; }
 }

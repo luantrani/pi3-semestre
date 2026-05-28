@@ -29,51 +29,50 @@ class SensorController {
         }
     }
 
-public function cadastrarSensor() {
-    try {
-        $idSensor = trim($_POST['idSensor'] ?? '');
-        $nome = trim($_POST['nomeSensor'] ?? '');
-        $corredor = trim($_POST['corredor'] ?? '');
-        $lado = trim($_POST['lado'] ?? '');
-        $capacidadeMaxima = intval($_POST['capacidade_maxima'] ?? 0);
-        $minimoReposicao = intval($_POST['minimo_reposicao'] ?? 0);
-        $idProduto = intval($_POST['id_produto'] ?? 0);
+    public function cadastrarSensor() {
+        try {
+            // Coletando apenas o que vem do formulário HTML
+            $idSensor         = trim($_POST['idSensor'] ?? '');
+            $nome             = trim($_POST['nomeSensor'] ?? '');
+            $corredor         = trim($_POST['corredor'] ?? '');
+            $lado             = $_POST['lado'] ?? '';
+            $idProduto        = intval($_POST['id_produto'] ?? 0);
+            $capacidadeMaxima = floatval($_POST['capacidadeMaxima'] ?? 0);
+            $minimoReposicao  = floatval($_POST['minimoReposicao'] ?? 0);
 
-        // Define a quantidade inicial (ou usa a máxima se o campo estiver vazio)
-        $qtdInicial = intval($_POST['quantidade_atual'] ?? $capacidadeMaxima);
+            // Instanciando o Model
+            $sensor = new Sensor();
+            $sensor->setId($idSensor);
+            $sensor->setNome($nome);
+            $sensor->setCorredor($corredor);
+            $sensor->setLado($lado);
+            $sensor->setCapacidadeMaxima($capacidadeMaxima);
+            $sensor->setMinimoReposicao($minimoReposicao);
+            $sensor->setStatus('Ativo');
 
-        $produto = $this->produtoDAO->buscarPorId($idProduto);
-        if (!$produto) {
-            throw new Exception("Produto não encontrado");
+            // Vinculando o produto (se houver um selecionado)
+            if ($idProduto > 0) {
+                $produto = $this->produtoDAO->buscarPorId($idProduto);
+                if ($produto) {
+                    $sensor->setProduto($produto);
+                }
+            }
+
+            // IMPORTANTE: Peso e Quantidade começam zerados. 
+            // O valor real virá assim que o HX711/ESP32 fizer a primeira leitura.
+            $sensor->setPesoAtual(0);
+            $sensor->setQuantidadeAtual(0);
+
+            $this->sensorDAO->inserir($sensor);
+
+            header("Location: roteador.php?controller=Sensor&action=index&status=sucesso");
+            exit;
+
+        } catch (Exception $e) {
+            echo "Erro ao cadastrar: " . $e->getMessage();
+            exit;
         }
-
-        $sensor = new Sensor();
-        $sensor->setId($idSensor);
-        $sensor->setNome($nome);
-        $sensor->setCorredor($corredor);
-        $sensor->setLado($lado);
-        $sensor->setCapacidadeMaxima($capacidadeMaxima);
-        $sensor->setMinimoReposicao($minimoReposicao);
-        
-        // --- A ORDEM AQUI É IMPORTANTE ---
-        // 1º Setamos o produto para o Model saber o peso unitário
-        $sensor->setProduto($produto);
-        
-        // 2º Setamos a quantidade (o Model vai calcular o peso sozinho agora)
-        $sensor->setQuantidadeAtual($qtdInicial);
-        
-        $sensor->setStatus('Ativo');
-
-        $this->sensorDAO->inserir($sensor);
-
-        header("Location: roteador.php?controller=Sensor&action=index&status=sucesso");
-        exit;
-    } catch (Exception $e) {
-        // Exibe o erro na tela para você debugar se algo der errado
-        echo "Erro: " . $e->getMessage();
-        exit;
     }
-}
 
     public function listarSensores() {
         try {
@@ -91,7 +90,7 @@ public function cadastrarSensor() {
             throw new Exception("Produto não encontrado");
         }
         $sensor->setProduto($produto);
-        $this->sensorDAO->atualizar($sensor);
+        $this->sensorDAO->salvarLeituraSensor($sensor);
     } catch (Exception $e) {
         throw new Exception("Erro ao atualizar sensor: " . $e->getMessage());
     }
