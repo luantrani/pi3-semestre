@@ -86,18 +86,18 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small text-muted">Capacidade Máxima *</label>
+                                <label class="form-label fw-semibold small text-muted">Capacidade Máxima</label>
                                 <div class="input-group">
-                                    <input type="number" name="capacidadeMaxima" step="0.1" class="form-control shadow-none" placeholder="Ex: 25.0" required />
-                                    <span class="input-group-text bg-light border-start-0 text-muted small">kg</span>
+                                    <input type="number" name="capacidadeMaxima" step="0.1" class="form-control shadow-none" placeholder="Ex: 25" required />
+                                    <span class="input-group-text bg-light border-start-0 text-muted small">Un</span>
                                 </div>
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small text-muted">Peso Mínimo para Alerta (kg) *</label>
+                                <label class="form-label fw-semibold small text-muted">Mínimo para Alerta</label>
                                 <div class="input-group">
-                                    <input type="number" name="minimoReposicao" step="0.1" class="form-control shadow-none" placeholder="Ex: 5.0" required />
-                                    <span class="input-group-text bg-light border-start-0 text-muted small">kg</span>
+                                    <input type="number" name="minimoReposicao" step="0.1" class="form-control shadow-none" placeholder="Ex: 5" required />
+                                    <span class="input-group-text bg-light border-start-0 text-muted small">Un</span>
                                 </div>
                             </div>
 
@@ -148,7 +148,7 @@
                                             </td>
                                             <td>
                                                 <div class="small fw-semibold"><?= htmlspecialchars($sensor->getProduto()->getNome()) ?></div>
-                                                <div class="text-muted" style="font-size: 0.75rem;">Cap: <?= htmlspecialchars($sensor->getCapacidadeMaxima()) ?>kg</div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">Cap: <?= htmlspecialchars($sensor->getCapacidadeMaxima()) ?>Un</div>
                                             </td>
                                             <td class="text-center">
                                                 <span class="badge rounded-pill <?= $sensor->getStatus() === 'Ativo' ? 'bg-success-light text-success' : 'bg-secondary-light text-secondary' ?> px-3">
