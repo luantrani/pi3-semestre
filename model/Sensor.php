@@ -60,14 +60,17 @@ class Sensor {
 
     public function setQuantidadeAtual($qtd) { $this->quantidadeAtual = $qtd; } // Setter simples para o DAO
     public function getQuantidadeAtual() { return $this->quantidadeAtual ?? 0; }
-    
     public function setPesoAtual($peso) { $this->pesoAtual = $peso; } // Setter simples para o DAO
     public function getPesoAtual() { return $this->pesoAtual ?? 0.0; }
 
     public function setProduto(Produto $produto) { $this->produto = $produto; }
     public function getProduto() { return $this->produto; }
+    public function setCapacidadeMaximaEInicializar($capacidade) {
+        $this->capacidadeMaxima = $capacidade;
+        $this->quantidadeAtual = $capacidade; // Começa com o total máximo
+    }
 
-    // Demais getters e setters padrão...
+
     public function getId() { return $this->id; }
     public function setId($id) { $this->id = $id; }
     public function getNome() { return $this->nome; }

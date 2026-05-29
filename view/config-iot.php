@@ -86,7 +86,7 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small text-muted">Capacidade Máxima (kg) *</label>
+                                <label class="form-label fw-semibold small text-muted">Capacidade Máxima *</label>
                                 <div class="input-group">
                                     <input type="number" name="capacidadeMaxima" step="0.1" class="form-control shadow-none" placeholder="Ex: 25.0" required />
                                     <span class="input-group-text bg-light border-start-0 text-muted small">kg</span>

@@ -94,39 +94,44 @@
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 text-nowrap">
                                 <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 text-muted fw-semibold small">PRODUTO</th>
+                                    <th class="py-3 text-muted fw-semibold small">REPOSITOR</th>
+                                    <th class="py-3 text-muted fw-semibold small text-center">QTD ADICIONADA</th>
+                                    <th class="py-3 text-muted fw-semibold small text-end pe-4">DATA/HORA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($historico)): ?>
                                     <tr>
-                                        <th class="ps-4 py-3 text-muted fw-semibold small">PRATELEIRA</th>
-                                        <th class="py-3 text-muted fw-semibold small">LOCALIZAÇÃO</th>
-                                        <th class="py-3 text-muted fw-semibold small text-center">FREQUÊNCIA (VAZIO)</th>
-                                        <th class="py-3 text-muted fw-semibold small text-end pe-4">ÚLTIMA OCORRÊNCIA</th>
+                                        <td colspan="4" class="text-center py-4 text-muted">Nenhuma reposição registrada ainda.</td>
                                     </tr>
-                                </thead>
-                                <tbody>
+                                <?php else: ?>
+                                    <?php foreach ($historico as $item): ?>
                                     <tr>
-                                        <td class="ps-4 fw-bold">Bebidas - Sucos</td>
-                                        <td><span class="badge bg-light text-dark border fw-normal">Corredor A1</span></td>
-                                        <td class="text-center"><span class="badge bg-danger-light text-danger fw-bold fs-6 px-3">12x</span></td>
-                                        <td class="text-end pe-4 small text-muted">Hoje, 10:00</td>
+                                        <td class="ps-4">
+                                            <div class="fw-bold"><?= htmlspecialchars($item['produto_nome']) ?></div>
+                                            <div class="text-muted extra-small">ID Mov: #<?= $item['id'] ?></div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border fw-normal">
+                                                <i class="fa-solid fa-user-check me-1 small text-primary"></i>
+                                                <?= htmlspecialchars($item['usuario_nome']) ?>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-success-light text-success fw-bold fs-6 px-3">
+                                                +<?= $item['quantidade_adicionada'] ?> un
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4 small text-muted">
+                                            <?= date('d/m/Y', strtotime($item['data_hora'])) ?><br>
+                                            <strong><?= date('H:i', strtotime($item['data_hora'])) ?></strong>
+                                        </td>
                                     </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-bold">Limpeza - Amaciante</td>
-                                        <td><span class="badge bg-light text-dark border fw-normal">Corredor A2</span></td>
-                                        <td class="text-center"><span class="badge bg-danger-light text-danger fw-bold fs-6 px-3">9x</span></td>
-                                        <td class="text-end pe-4 small text-muted">Hoje, 09:45</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-bold">Bebidas - Refrigerantes</td>
-                                        <td><span class="badge bg-light text-dark border fw-normal">Corredor A1</span></td>
-                                        <td class="text-center"><span class="badge bg-warning-light text-warning fw-bold fs-6 px-3">5x</span></td>
-                                        <td class="text-end pe-4 small text-muted">Hoje, 11:30</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4 fw-bold">Limpeza - Sabão em Pó</td>
-                                        <td><span class="badge bg-light text-dark border fw-normal">Corredor A2</span></td>
-                                        <td class="text-center"><span class="badge bg-success-light text-success fw-bold fs-6 px-3">3x</span></td>
-                                        <td class="text-end pe-4 small text-muted">Ontem, 17:20</td>
-                                    </tr>
-                                </tbody>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
                             </table>
                         </div>
                     </section>

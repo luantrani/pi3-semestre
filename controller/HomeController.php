@@ -17,29 +17,30 @@ class HomeController {
         }
 
         $this->sensorDAO = new SensorDAO();
-        $this->historicoDAO = new HistoricoDAO();
+        $this->historicoAlertasDAO = new HistoricoAlertasDAO();
 
         // Obtém a lista de objetos Sensor (já com Produto e Categoria acoplados)
         $sensores = $this->sensorDAO->listarTodos();
         
         // Obtém a lista de objetos Alerta
-        $alertas = $this->historicoDAO->listarAlertasPendentes();
+        $alertas = $this->historicoAlertasDAO->buscarAlertasAtivos();
 
         // Processamento dos KPIs usando os métodos da classe Sensor
         $totalCheios = 0;
         $totalCriticos = 0;
+        $totalAtencao = 0; // Opcional, se quiser mostrar o amarelo
 
         foreach ($sensores as $s) {
-        // Usando o método que criamos no Model Sensor.php
-        if ($s->getPorcentagemEstoque() >= 80) {
-            $totalCheios++;
+            $porcentagem = $s->getPorcentagemEstoque();
+            
+            if ($s->precisaReposicao()) {
+                $totalCriticos++;
+            } elseif ($porcentagem >= 50) {
+                $totalCheios++; // Só conta como "Em Conformidade" se for 50% ou mais
+            } else {
+                $totalAtencao++; // Sensores entre 21% e 49%
+            }
         }
-        
-        if ($s->precisaReposicao()) {
-            $totalCriticos++;
-        }
-
-    }
 
         // Carrega a View (as variáveis $sensores, $alertas, $totalCheios e $totalCriticos serão usadas lá)
         include __DIR__ . '/../view/home.php';

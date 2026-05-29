@@ -3,6 +3,7 @@ include_once 'Conexao.php';
 include_once 'model/Categoria.php';
 include_once 'model/Sensor.php';
 include_once 'model/Produto.php';
+include_once 'HistoricoAlertasDAO.php';
 
 class SensorDAO {
     private $conexao;
@@ -84,7 +85,6 @@ class SensorDAO {
         }
     }
 
-    // NOVO MÉTODO: Atualiza peso e quantidade de uma vez (Ideal para o ESP32)
     public function salvarLeituraSensor(Sensor $sensor) {
         try {
             $sql = "UPDATE sensor SET peso_atual = :peso, quantidade_atual = :qtd, ultima_atualizacao = NOW() WHERE id = :id";
@@ -92,7 +92,15 @@ class SensorDAO {
             $stmt->bindValue(":peso", $sensor->getPesoAtual());
             $stmt->bindValue(":qtd", $sensor->getQuantidadeAtual());
             $stmt->bindValue(":id", $sensor->getId());
-            return $stmt->execute();
+            
+            $sucesso = $stmt->execute();
+
+            // GATILHO: Se a atualização deu certo, verifica se precisa de alerta
+            if ($sucesso) {
+                $this->verificarNivelCritico($sensor);
+            }
+
+            return $sucesso;
         } catch (Exception $e) {
             error_log("Erro ao salvar leitura: " . $e->getMessage());
             return false;
@@ -106,6 +114,28 @@ class SensorDAO {
             return $stmt->execute([$id]);
         } catch (PDOException $e) {
             throw new Exception("Erro ao excluir sensor: " . $e->getMessage());
+        }
+    }
+
+    private function verificarNivelCritico($sensor) {
+        // Usando o limite definido no cadastro do sensor (minimo_reposicao)
+        $limite = $sensor->getMinimoReposicao();
+        $quantidadeAtual = $sensor->getQuantidadeAtual();
+
+        // Se a quantidade for menor ou igual ao mínimo definido
+        if ($quantidadeAtual <= $limite) {
+            $historicoDAO = new HistoricoAlertasDAO();
+            
+            // 1. Verifica se já não tem um alerta aberto para este sensor
+            // Isso evita criar centenas de alertas enquanto o produto não é reposto
+            if (!$historicoDAO->temAlertaAtivo($sensor->getId())) {
+                
+                // 2. Registra o alerta no banco
+                $historicoDAO->registrarAlerta(
+                    $sensor->getId(), 
+                    $quantidadeAtual
+                );
+            }
         }
     }
 }

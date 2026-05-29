@@ -61,7 +61,7 @@ class SensorController {
             // IMPORTANTE: Peso e Quantidade começam zerados. 
             // O valor real virá assim que o HX711/ESP32 fizer a primeira leitura.
             $sensor->setPesoAtual(0);
-            $sensor->setQuantidadeAtual(0);
+            $sensor->setCapacidadeMaximaEInicializar($_POST['capacidade_maxima']);
 
             $this->sensorDAO->inserir($sensor);
 
