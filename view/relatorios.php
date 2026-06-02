@@ -89,7 +89,7 @@
                 <div class="col-lg-8">
                     <section class="card border-0 shadow-sm p-0 overflow-hidden h-100">
                         <div class="p-4 bg-white border-bottom">
-                            <h2 class="h5 fw-bold mb-0">Ranking: Prateleiras Mais Vazias</h2>
+                            <h2 class="h5 fw-bold mb-0">Historico de reposição</h2>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 text-nowrap">
