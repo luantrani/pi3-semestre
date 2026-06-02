@@ -29,10 +29,18 @@ foreach ($alertas as $a) {
         'status' => trim(strtolower($a->getStatus())),
         'tempo' => $a->getTempoDesdeAlerta(),
         'icon' => $icon,
-        'idResponsavel' => $a->getIdUsuarioAtendimento(),
-        'idLogado' => $idLogado
+        'idResponsavel' => $a->getIdUsuarioAtendimento() !== null ? (int)$a->getIdUsuarioAtendimento() : 0,
+        'idLogado' => (int)$idLogado
     ];
 }
+usort($dados, function($a, $b) {
+    // Se o status for diferente, pendentes vêm antes
+    if ($a['status'] !== $b['status']) {
+        return ($a['status'] === 'pendente') ? -1 : 1;
+    }
+    // Se o status for igual, compara pelo tempo (supondo que tempo seja uma string formatada ou numérica)
+    return strcmp($a['tempo'], $b['tempo']); 
+});
 
 header('Content-Type: application/json');
 echo json_encode([

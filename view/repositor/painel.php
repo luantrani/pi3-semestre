@@ -52,25 +52,35 @@ $usuarioLogado = $_SESSION['usuario'];
     const idLogado = <?= json_encode($usuarioLogado['id'] ?? 0) ?>;
 
     function templateAlerta(a, extraClass = '') {
-        let botao = (a.status === 'pendente') 
-            ? `<button class="btn btn-primary btn-action w-100 btn-atender" data-id="${a.id}">Atender</button>`
-            : (parseInt(a.idResponsavel) === idLogado) 
-                ? `<button class="btn btn-success btn-action w-100 btn-finalizar" data-id="${a.id}">Finalizar</button>`
-                : `<span class="badge bg-light text-muted w-100 py-3">Em atendimento</span>`;
+    // Forçamos a conversão para string para garantir que a comparação funcione
+    const idResp = String(a.idResponsavel || '0');
+    const idLog = String(idLogado || '0');
+    
+    let botao = '';
 
-        return `
-            <div class="card card-alerta p-3 ${extraClass}">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <div class="fw-bold text-dark">${a.produto}</div>
-                        <div class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i> ${a.corredor} (${a.lado})</div>
-                    </div>
-                    ${extraClass ? '<span class="badge bg-danger rounded-pill"><i class="fa-solid fa-fire"></i> URGENTE</span>' : ''}
-                </div>
-                <div class="mb-3 small text-danger fw-bold"><i class="fa-solid fa-clock me-1"></i> ${a.tempo} de espera</div>
-                ${botao}
-            </div>`;
+    if (a.status === 'pendente') {
+        botao = `<button class="btn btn-primary btn-action w-100 btn-atender" data-id="${a.id}">Atender</button>`;
+    } else if (a.status === 'em_andamento') {
+        if (idResp === idLog) {
+            botao = `<button class="btn btn-success btn-action w-100 btn-finalizar" data-id="${a.id}">Finalizar</button>`;
+        } else {
+            botao = `<span class="badge bg-light text-muted w-100 py-3">Em atendimento</span>`;
+        }
     }
+
+    return `
+        <div class="card card-alerta p-3 ${extraClass}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <div class="fw-bold text-dark">${a.produto}</div>
+                    <div class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i> ${a.corredor} (${a.lado})</div>
+                </div>
+                ${extraClass ? '<span class="badge bg-danger rounded-pill"><i class="fa-solid fa-fire"></i> URGENTE</span>' : ''}
+            </div>
+            <div class="mb-3 small text-danger fw-bold"><i class="fa-solid fa-clock me-1"></i> ${a.tempo} de espera</div>
+            ${botao}
+        </div>`;
+}
 
     function carregarAlertas() {
         fetch('api_alertas.php')
