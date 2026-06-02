@@ -29,11 +29,15 @@ $historico = $historico ?? [];
             </div>
             <nav class="menu">
                 <a class="menu-item" href="roteador.php?controller=Home&action=index"><i class="fa-solid fa-chart-pie"></i> Visão Geral</a>
-                <a class="menu-item active" href="roteador.php?controller=Repositor&action=index"><i class="fa-solid fa-truck-ramp-box"></i> Monitor de Reposição</a>
+                <a class="menu-item" href="roteador.php?controller=Sensor&action=index"><i class="fa-solid fa-microchip"></i> Configurações IoT</a>
                 <a class="menu-item" href="roteador.php?controller=Relatorio&action=index"><i class="fa-solid fa-file-lines"></i> Relatórios</a>
+                <a class="menu-item active" href="roteador.php?controller=Repositor&action=index"><i class="fa-solid fa-truck-ramp-box"></i> Área Repositor</a>
                 <div class="menu-divider"></div>
-                <a class="menu-item" href="roteador.php?controller=Gestao&action=index"><i class="fa-solid fa-gears"></i> Configurações</a>
+                <a class="menu-item" href="roteador.php?controller=Gestao&action=index"><i class="fa-solid fa-gears"></i> Administração</a>
             </nav>
+            <button class="btn btn-danger mt-auto mx-2 mb-3" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
+                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
+            </button>
         </aside>
 
         <main class="content">
@@ -43,7 +47,6 @@ $historico = $historico ?? [];
                     <p class="text-muted small mb-0">Acompanhamento em tempo real da equipe de campo.</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-white border shadow-sm btn-sm"><i class="fa-solid fa-print me-2"></i>Exportar Log</button>
                     <button class="btn btn-primary shadow-sm btn-sm" onclick="location.reload()"><i class="fa-solid fa-sync me-2"></i>Atualizar</button>
                 </div>
             </header>

@@ -83,7 +83,14 @@
 
             <section class="card border-0 shadow-sm p-4">
                 <h2 class="h5 fw-bold mb-4"><i class="fa-solid fa-eye me-2 text-primary"></i>Status das Prateleiras</h2>
-                
+                <div class="col-md-3">
+                    <input type="text" id="filtroTexto" class="form-control shadow-sm" placeholder="Buscar produto...">
+                </div>
+                <div class="col-md-3">
+                    <select id="filtroCategoria" class="form-select shadow-sm">
+                        <option value="todos">Todas Categorias</option>
+                        </select>
+                </div>
                 <div class="row g-4" id="lista-sensores">
                     <?php foreach ($sensores as $s): 
                         $isCritico = $s->precisaReposicao();
@@ -182,6 +189,33 @@
 <script>
     let historicoSensores = {}; 
     let meuGrafico;
+
+    const filtroTexto = document.getElementById('filtroTexto');
+    const filtroCategoria = document.getElementById('filtroCategoria');
+
+    function aplicarFiltros() {
+        const termo = filtroTexto.value.toLowerCase();
+        const categoriaSelecionada = filtroCategoria.value.toLowerCase();
+        const cards = document.querySelectorAll('#lista-sensores .col-xl-4');
+
+        cards.forEach(card => {
+            const nomeProduto = card.querySelector('h3').textContent.toLowerCase();
+            // O atributo data-categoria é essencial aqui
+            const categoriaCard = card.getAttribute('data-categoria').toLowerCase();
+            
+            const correspondeTexto = nomeProduto.includes(termo);
+            const correspondeCat = (categoriaSelecionada === 'todos' || categoriaCard === categoriaSelecionada);
+
+            if (correspondeTexto && correspondeCat) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+filtroTexto.addEventListener('keyup', aplicarFiltros);
+filtroCategoria.addEventListener('change', aplicarFiltros);
 
     document.addEventListener('DOMContentLoaded', function() {
         const sensorModal = document.getElementById('sensorModal');

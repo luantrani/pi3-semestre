@@ -72,7 +72,8 @@ INSERT INTO categorias (nome) VALUES
 -- 2. Inserindo Usuários (Um de cada nível)
 -- Senha para ambos: admin123 (usando o hash que você forneceu)
 INSERT INTO usuarios (nome, login, senha, nivel_acesso) VALUES 
-('Carlos Repositor', 'carlos.gpi', '$2y$10$dLpz.bzESR.qZWDaMaybu.zt9EFhs72TlLEQiLEPNTvkTaNXcr/dG', 'repositor');
+('Carlos Repositor', 'carlos.gpi', '$2y$10$dLpz.bzESR.qZWDaMaybu.zt9EFhs72TlLEQiLEPNTvkTaNXcr/dG', 'repositor'),
+('João Repositor', 'joao.gpi', '$2y$10$dLpz.bzESR.qZWDaMaybu.zt9EFhs72TlLEQiLEPNTvkTaNXcr/dG', 'repositor');
 
 -- 3. Inserindo Produtos
 -- O peso_unitario é importante para a lógica do sensor IoT
@@ -87,8 +88,14 @@ INSERT INTO produtos (nome, peso_unitario, unidade_medida, id_categoria) VALUES
 -- Aqui simulamos alguns cheios e outros precisando de reposição
 INSERT INTO sensor (id, nome, corredor, lado, peso_atual, quantidade_atual, capacidade_maxima, minimo_reposicao, id_produto, status) VALUES 
 ('AC-2312', 'Sensor Coca-A1', 'A1', 'Esquerdo', 42.000, 20, 20, 5, 1, 'Ativo'),      -- 20 itens (Max)
-('AC-2313', 'Sensor Amaciante-B1', 'B1', 'Direito', 11.000, 20, 20, 5, 2, 'Ativo'),    -- 20 itens (Max)
+('AC-2313', 'Sensor Amaciante-B1', 'B1', 'Direito', 0.000, 0, 20, 5, 2, 'Ativo'),    
 ('AC-2314', 'Sensor Arroz-C2', 'C2', 'Direito', 75.750, 15, 15, 3, 3, 'Ativo'),      -- 15 itens (Max)
-('AC-2315', 'Sensor Detergente-B2', 'B2', 'Direito', 13.000, 25, 25, 6, 4, 'Ativo'),   -- 25 itens (Max)
+('AC-2315', 'Sensor Detergente-B2', 'B2', 'Direito', 0.000, 0, 25, 6, 4, 'Ativo'),  
 ('AC-2316', 'Sensor Sabonete-D1', 'D1', 'Esquerdo', 4.750, 50, 50, 10, 5, 'Ativo');      -- 50 itens (Max)
 
+insert into historico_alertas (id_sensor, quantidade_no_momento, data_hora_alerta, data_fim, status, id_usuario_atendimento) values 
+('AC-2313', 0, '2024-06-01 10:00:00', "2024-06-01 11:00:00", '', 3), -- Alerta para Amaciante
+('AC-2315', 0, '2024-05-01 10:00:00', NULL, 'em_andamento', 2); -- Alerta para Detergente
+
+insert into movimentacao_estoque (id_produto, id_usuario, quantidade_adicionada) values 
+(2, 3, 20); -- João Repositor adicionou 20 amaciantes
