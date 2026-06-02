@@ -43,7 +43,7 @@
                     <i class="fa-solid fa-gears"></i> Administração
                 </a>
             </nav>
-            <button class="btn btn-danger mt-auto mx-2 mb-3 py-2 w-100" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
+            <button class="btn btn-danger mt-auto mx-2 mb-3 py-2" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
                 <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
             </button>
         </aside>
