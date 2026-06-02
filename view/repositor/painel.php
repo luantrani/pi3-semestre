@@ -48,9 +48,10 @@ $usuarioLogado = $_SESSION['usuario'];
 </main>
 
 <script>
-    const idLogado = <?= $usuarioLogado['id'] ?>;
+    // A forma segura de passar dados do PHP para o JS
+    const idLogado = <?= json_encode($usuarioLogado['id'] ?? 0) ?>;
 
-    function templateAlerta(a) {
+    function templateAlerta(a, extraClass = '') {
         let botao = (a.status === 'pendente') 
             ? `<button class="btn btn-primary btn-action w-100 btn-atender" data-id="${a.id}">Atender</button>`
             : (parseInt(a.idResponsavel) === idLogado) 
@@ -58,15 +59,15 @@ $usuarioLogado = $_SESSION['usuario'];
                 : `<span class="badge bg-light text-muted w-100 py-3">Em atendimento</span>`;
 
         return `
-            <div class="card card-alerta p-3">
+            <div class="card card-alerta p-3 ${extraClass}">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div>
                         <div class="fw-bold text-dark">${a.produto}</div>
                         <div class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i> ${a.corredor} (${a.lado})</div>
                     </div>
-                    <span class="badge bg-danger-light text-danger rounded-pill">Restam ${a.quantidade} un</span>
+                    ${extraClass ? '<span class="badge bg-danger rounded-pill"><i class="fa-solid fa-fire"></i> URGENTE</span>' : ''}
                 </div>
-                <div class="mb-3 small text-muted"><i class="fa-solid fa-clock me-1"></i> Esperando há ${a.tempo}</div>
+                <div class="mb-3 small text-danger fw-bold"><i class="fa-solid fa-clock me-1"></i> ${a.tempo} de espera</div>
                 ${botao}
             </div>`;
     }
@@ -75,14 +76,22 @@ $usuarioLogado = $_SESSION['usuario'];
         fetch('api_alertas.php')
             .then(r => r.json())
             .then(data => {
+                // 1. Atualiza KPIs
                 document.getElementById('kpi-pendentes').innerText = data.totalAlertas;
                 document.getElementById('kpi-urgente').innerText = data.maisUrgente;
                 
                 const container = document.getElementById('lista-alertas');
+                
+                // 2. Renderiza a lista com o destaque para o mais urgente (index 0)
                 container.innerHTML = data.lista.length === 0 
                     ? '<div class="text-center py-5 text-muted">Tudo abastecido! <i class="fa-solid fa-check"></i></div>'
-                    : data.lista.map(a => { a.idLogado = idLogado; return templateAlerta(a); }).join('');
-            });
+                    : data.lista.map((a, index) => { 
+                        // A classe de destaque só vai no primeiro item da lista
+                        const classeUrgente = index === 0 ? 'border-danger border-4 shadow' : '';
+                        return templateAlerta(a, classeUrgente); 
+                    }).join('');
+            })
+            .catch(err => console.error("Erro ao carregar alertas:", err));
     }
 
     // Eventos de clique (igual ao que você já tinha)

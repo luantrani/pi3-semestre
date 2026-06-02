@@ -43,7 +43,7 @@
                     <i class="fa-solid fa-gears"></i> Administração
                 </a>
             </nav>
-            <button class="btn btn-danger mt-auto mx-2 mb-3 py-2" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
+            <button class="btn btn-danger mt-auto mx-2 mb-3 py-2 w-100" onclick="location.href='roteador.php?controller=Usuario&action=logout'">
                 <i class="fa-solid fa-right-from-bracket me-2"></i> Sair
             </button>
         </aside>
@@ -83,14 +83,28 @@
 
             <section class="card border-0 shadow-sm p-4">
                 <h2 class="h5 fw-bold mb-4"><i class="fa-solid fa-eye me-2 text-primary"></i>Status das Prateleiras</h2>
-                <div class="col-md-3">
-                    <input type="text" id="filtroTexto" class="form-control shadow-sm" placeholder="Buscar produto...">
-                </div>
-                <div class="col-md-3">
-                    <select id="filtroCategoria" class="form-select shadow-sm">
-                        <option value="todos">Todas Categorias</option>
-                        </select>
-                </div>
+                <section class="filter-bar border-0 shadow-sm mb-4 p-3 rounded">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <h2 class="h5 fw-bold mb-0 text-dark"><i class="fa-solid fa-filter me-2 text-primary"></i>Filtrar Itens</h2>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="filtroTexto" class="form-control" placeholder="Buscar produto...">
+                        </div>
+                        <div class="col-md-2">
+                            <select id="filtroCategoria" class="form-select">
+                                <option value="todos">Categoria</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filtroStatus" class="form-select">
+                                <option value="todos">Todos</option>
+                                <option value="critico">Críticos</option>
+                                <option value="saudavel">OK</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
                 <div class="row g-4" id="lista-sensores">
                     <?php foreach ($sensores as $s): 
                         $isCritico = $s->precisaReposicao();
@@ -187,40 +201,63 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    let historicoSensores = {}; 
+    let historicoSensores = {};
     let meuGrafico;
 
+    // --- FUNÇÃO DE FILTRAGEM (PRESERVADA) ---
+    function aplicarFiltros() {
     const filtroTexto = document.getElementById('filtroTexto');
     const filtroCategoria = document.getElementById('filtroCategoria');
+    const filtroStatus = document.getElementById('filtroStatus');
 
-    function aplicarFiltros() {
-        const termo = filtroTexto.value.toLowerCase();
-        const categoriaSelecionada = filtroCategoria.value.toLowerCase();
-        const cards = document.querySelectorAll('#lista-sensores .col-xl-4');
+    const termo = filtroTexto ? filtroTexto.value.toLowerCase() : "";
+    const catSelecionada = filtroCategoria ? filtroCategoria.value.toLowerCase() : "todos";
+    const statusSelecionado = filtroStatus ? filtroStatus.value : "todos";
+    
+    // Usamos o seletor que confirmamos que funciona
+    const cards = document.querySelectorAll('article[data-categoria]');
 
-        cards.forEach(card => {
-            const nomeProduto = card.querySelector('h3').textContent.toLowerCase();
-            // O atributo data-categoria é essencial aqui
-            const categoriaCard = card.getAttribute('data-categoria').toLowerCase();
-            
-            const correspondeTexto = nomeProduto.includes(termo);
-            const correspondeCat = (categoriaSelecionada === 'todos' || categoriaCard === categoriaSelecionada);
+    cards.forEach(card => {
+        // --- 1. PEGAR DADOS DO CARD ---
+        const nomeProduto = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : "";
+        
+        // .trim() remove espaços extras, .toLowerCase() iguala a caixa
+        const catCard = card.getAttribute('data-categoria') ? card.getAttribute('data-categoria').trim().toLowerCase() : "";
+        
+        const barra = card.querySelector('.progress-bar');
+        const isCritico = barra ? barra.classList.contains('bg-danger') : false;
 
-            if (correspondeTexto && correspondeCat) {
-                card.style.display = "";
-            } else {
-                card.style.display = "none";
-            }
-        });
-    }
+        // --- 2. LOGICA DE COMPARAÇÃO ---
+        const correspondeTexto = nomeProduto.includes(termo);
+        
+        // O "pulo do gato" está aqui:
+        const correspondeCat = (catSelecionada === 'todos' || catSelecionada === "" || catCard === catSelecionada);
+        
+        let correspondeStatus = true;
+        if (statusSelecionado === 'critico') correspondeStatus = isCritico;
+        else if (statusSelecionado === 'saudavel') correspondeStatus = !isCritico;
 
-filtroTexto.addEventListener('keyup', aplicarFiltros);
-filtroCategoria.addEventListener('change', aplicarFiltros);
+        // --- 3. APLICAÇÃO ---
+        if (correspondeTexto && correspondeCat && correspondeStatus) {
+            card.parentElement.style.display = ""; // Mostra o pai (a div col-xl-4)
+        } else {
+            card.parentElement.style.display = "none"; // Esconde o pai
+        }
+    });
+}
 
+    // Event Listeners
     document.addEventListener('DOMContentLoaded', function() {
-        const sensorModal = document.getElementById('sensorModal');
+        const filtroTexto = document.getElementById('filtroTexto');
+        const filtroCategoria = document.getElementById('filtroCategoria');
+        const filtroStatus = document.getElementById('filtroStatus');
 
-        // --- LÓGICA DO MODAL ---
+        if (filtroTexto) filtroTexto.addEventListener('keyup', aplicarFiltros);
+        if (filtroCategoria) filtroCategoria.addEventListener('change', aplicarFiltros);
+        if (filtroStatus) filtroStatus.addEventListener('change', aplicarFiltros);
+
+        // --- LÓGICA DO MODAL (PRESERVADA) ---
+        const sensorModal = document.getElementById('sensorModal');
         if (sensorModal) {
             sensorModal.addEventListener('show.bs.modal', event => {
                 const card = event.relatedTarget;
@@ -230,10 +267,10 @@ filtroCategoria.addEventListener('change', aplicarFiltros);
                 const qtd = card.getAttribute('data-qtd');
                 const max = card.getAttribute('data-max');
 
-                document.getElementById('modalIdSensor').value = id;
-                document.getElementById('modalNomeProduto').textContent = nome;
-                document.getElementById('modalCategoria').textContent = cat;
-                document.getElementById('modalQtdInfo').textContent = `${qtd} / ${max} un`;
+                if(document.getElementById('modalIdSensor')) document.getElementById('modalIdSensor').value = id;
+                if(document.getElementById('modalNomeProduto')) document.getElementById('modalNomeProduto').textContent = nome;
+                if(document.getElementById('modalCategoria')) document.getElementById('modalCategoria').textContent = cat;
+                if(document.getElementById('modalQtdInfo')) document.getElementById('modalQtdInfo').textContent = `${qtd} / ${max} un`;
 
                 const labels = [];
                 const agora = new Date();
@@ -242,47 +279,62 @@ filtroCategoria.addEventListener('change', aplicarFiltros);
                     labels.push(tempo.getHours() + ":" + tempo.getMinutes().toString().padStart(2, '0'));
                 }
 
-                const ctx = document.getElementById('historicoGrafico').getContext('2d');
-                if (meuGrafico) meuGrafico.destroy();
-
-                meuGrafico = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Estoque',
-                            data: historicoSensores[id] || [qtd],
-                            borderColor: '#0d6efd',
-                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { 
-                            y: { beginAtZero: true, max: parseInt(max) } 
-                        }
-                    }
-                });
+                const ctx = document.getElementById('historicoGrafico')?.getContext('2d');
+                if (ctx) {
+                    if (meuGrafico) meuGrafico.destroy();
+                    meuGrafico = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Estoque',
+                                data: historicoSensores[id] || [qtd],
+                                borderColor: '#0d6efd',
+                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: parseInt(max) } } }
+                    });
+                }
             });
         }
 
-        // --- FUNÇÃO DE ATUALIZAÇÃO ---
+        // --- POPULAR SELECT CATEGORIAS (PRESERVADA) ---
+        const selectCat = document.getElementById('filtroCategoria');
+        if (selectCat) {
+            const categorias = new Set();
+            // AQUI ESTÁ A MUDANÇA: Buscamos as articles que possuem o atributo data-categoria
+            const cards = document.querySelectorAll('article[data-categoria]');
+            
+            cards.forEach(card => {
+                const cat = card.getAttribute('data-categoria');
+                if (cat && cat.trim() !== "") {
+                    categorias.add(cat.trim());
+                }
+            });
+
+            console.log("Categorias únicas encontradas:", Array.from(categorias)); // Debug
+
+            categorias.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.toLowerCase();
+                option.textContent = cat;
+                selectCat.appendChild(option);
+            });
+        }
+
+        // --- FUNÇÃO DE ATUALIZAÇÃO (PRESERVADA) ---
         function atualizarInterface() {
-            // Se você estiver no localhost, verifique se o caminho está correto
             fetch('dados_estoque.php') 
                 .then(res => res.json())
                 .then(sensores => {
                     sensores.forEach(s => {
-                        // 1. Atualiza histórico para o gráfico
                         if (!historicoSensores[s.id]) historicoSensores[s.id] = [];
                         historicoSensores[s.id].push(s.qtd);
                         if (historicoSensores[s.id].length > 20) historicoSensores[s.id].shift();
 
-                        // 2. Seleciona elementos do card
                         const barra = document.getElementById(`barra-${s.id}`);
                         const txtQtd = document.getElementById(`qtd-text-${s.id}`);
                         const txtPerc = document.getElementById(`porcentagem-${s.id}`);
@@ -291,7 +343,6 @@ filtroCategoria.addEventListener('change', aplicarFiltros);
                         const alerta = document.getElementById(`alerta-reposicao-${s.id}`);
 
                         if (barra) {
-                            // Define regras de cores baseadas na porcentagem
                             let classeCor = 'success';
                             let textoStatus = 'Estoque Saudável';
                             let iconeStatus = 'fa-check-circle';
@@ -309,7 +360,6 @@ filtroCategoria.addEventListener('change', aplicarFiltros);
                                 hexCor = '#ffc107';
                             }
 
-                            // Aplica as mudanças visuais
                             barra.style.width = s.porcentagem + '%';
                             barra.className = `progress-bar bg-${classeCor} ${classeCor === 'danger' ? 'progress-bar-striped progress-bar-animated' : ''}`;
                             
@@ -327,16 +377,14 @@ filtroCategoria.addEventListener('change', aplicarFiltros);
                             }
                         }
 
-                        // 3. Atualiza o gráfico se o modal deste sensor estiver aberto
+                        // Atualiza gráfico se modal aberto
                         const modalAberto = document.querySelector('#sensorModal.show');
                         if (modalAberto) {
-                            const idNoModal = document.getElementById('modalIdSensor').value;
+                            const idNoModal = document.getElementById('modalIdSensor')?.value;
                             if (idNoModal == s.id && meuGrafico) {
                                 document.getElementById('modalQtdInfo').textContent = `${s.qtd} / ${s.max} un`;
-                                
                                 const agora = new Date();
                                 const novaHora = agora.getHours() + ":" + agora.getMinutes().toString().padStart(2, '0');
-
                                 if (meuGrafico.data.labels[meuGrafico.data.labels.length - 1] !== novaHora) {
                                     meuGrafico.data.labels.shift();
                                     meuGrafico.data.labels.push(novaHora);
@@ -347,25 +395,21 @@ filtroCategoria.addEventListener('change', aplicarFiltros);
                             }
                         }
                     });
+                    aplicarFiltros();
                 })
                 .catch(err => console.error("Erro na atualização:", err));
         }
 
-        // --- INTERVALO DE SIMULAÇÃO ---
         setInterval(() => {
             if (!document.hidden) {
                 fetch('simulador.php')
-                    .then(res => {
-                        if (res.ok) atualizarInterface();
-                    })
+                    .then(res => { if (res.ok) atualizarInterface(); })
                     .catch(err => console.error("Erro no simulador:", err));
             }
         }, 5000);
 
-        // Primeira carga
         atualizarInterface();
-
-    }); // Fim do DOMContentLoaded
+    });
 </script>
 </body>
 </html>

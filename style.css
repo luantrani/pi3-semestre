@@ -108,16 +108,59 @@ body {
 }
 
 /* =========================================
-   COMPONENTES (CARDS E KPIS)
+   COMPONENTES (CARDS E KPIS) - OTIMIZADOS
    ========================================= */
+
+/* Estrutura Base do Card para alinhamento Flex */
 .card {
-    background: #fff !important;
-    border-radius: 16px !important;
-    border: none !important;
-    box-shadow: var(--shadow);
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto; /* Mude de 100% para auto */
+    min-height: auto; /* Garante que não tenha altura mínima forçada */
+    padding: 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--line) !important;
 }
 
-/* Container dos KPIs - Use o flex do Bootstrap no HTML, e o CSS apenas para o visual interno */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto; /* Mude de flex: 1 para 0 0 auto (não estica) */
+    padding: 0 !important;
+}
+
+/* Título com Truncamento (evita que o card cresça) */
+.card-body h3 {
+    font-size: 0.95rem !important;
+    margin-bottom: 0.25rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+}
+
+/* Informações auxiliares compactas */
+.card-body p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 12px !important;
+}
+
+/* Rodapé do card (Botão de Reposição) sempre alinhado embaixo */
+.alerta-reposicao {
+    margin-top: auto; 
+    padding: 8px !important;
+    font-size: 0.8rem !important;
+    border-radius: 8px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================
+   KPIs (Configuração original mantida)
+   ========================================= */
 .kpi-card {
     display: flex !important;
     flex-direction: column !important;
@@ -125,49 +168,58 @@ body {
     justify-content: center !important;
     padding: 20px !important;
     text-align: center;
-    min-height: 160px;
-    width: 100%; /* Garante que o card preencha a coluna do Bootstrap */
+    min-height: 140px; 
+    width: 100%;
+    margin-top: 0 !important;
+    height: 100% !important;
 }
 
-.kpi-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    margin-bottom: 12px;
-    flex-shrink: 0; /* Impede o ícone de amassar */
-}
-
-/* Garante que o conteúdo textual não quebre o alinhamento */
-.kpi-info {
+.kpi-card .kpi-info {
+    flex: 0 0 auto !important; /* Impede que ele ocupe todo o espaço disponível */
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.kpi-info small {
-    display: block;
-    margin-bottom: 4px;
-    white-space: nowrap; /* Evita que o texto pule linha e entorte o card */
+.kpi-card .card-body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: none !important; /* Corrige o erro de tentar expandir o corpo do KPI */
+    width: 100%;
+}
+
+.kpi-card h3, 
+.kpi-card .h3 {
+    min-height: auto !important; /* Remove a altura mínima forçada */
+    white-space: normal !important; /* Permite quebra de linha normal */
+    overflow: visible !important;
+    margin: 0 !important;
+}
+
+.kpi-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .kpi-info strong {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     line-height: 1;
 }
 
-/* Classes de cores suaves */
-.bg-primary-light { background-color: rgba(79, 70, 229, 0.1) !important; color: #4f46e5; }
-.bg-success-light { background-color: rgba(16, 185, 129, 0.1) !important; color: #10b981; }
-.bg-danger-light  { background-color: rgba(239, 68, 68, 0.1) !important; color: #ef4444; }
-.bg-warning-light { background-color: rgba(245, 158, 11, 0.1) !important; color: #f59e0b; }
-/* Cores de Fundo Suaves para Ícones */
-.bg-primary-light { background-color: var(--primary-light); color: var(--primary); }
-.bg-success-light { background-color: var(--success-light); color: var(--normal); }
-.bg-danger-light  { background-color: var(--danger-light); color: var(--vazio); }
+/* Classes de cores (Removida duplicação e garantida a prioridade com !important) */
+.bg-primary-light { background-color: var(--primary-light) !important; color: var(--primary) !important; }
+.bg-success-light { background-color: var(--success-light) !important; color: var(--normal) !important; }
+.bg-danger-light  { background-color: var(--danger-light) !important; color: var(--vazio) !important; }
+.bg-warning-light { background-color: var(--warning-light) !important; color: var(--atencao) !important; }
 
 /* =========================================
    GRID DE PRATELEIRAS E ALERTAS
@@ -271,6 +323,8 @@ body {
     border-radius: 12px;
 }
 
+
+
 /* =========================================
    RESPONSIVIDADE
    ========================================= */
@@ -279,8 +333,23 @@ body {
 }
 
 @media (max-width: 768px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-    .content { padding: 16px; }
-    .kpi-card { min-height: auto; }
+    /* Faz o app virar uma coluna única */
+    .app { 
+        grid-template-columns: 1fr; 
+    }
+    /* Em vez de esconder a sidebar, vamos deixá-la ocupando 100% ou esconder se desejar */
+    .sidebar { 
+        position: relative; 
+        height: auto; 
+        border-right: none; 
+        border-bottom: 1px solid var(--line);
+    }
+    .content { 
+        padding: 16px; 
+    }
+    /* Ajusta os KPIs para ficarem um embaixo do outro */
+    .row { 
+        display: flex; 
+        flex-direction: column; 
+    }
 }

@@ -85,7 +85,7 @@ class RepositorController {
                     $this->sensorDAO->salvarLeituraSensor($sensor);
 
                     // 4. Finaliza o Alerta
-                    $alerta->setStatus('concluido');
+                    $alerta->setStatus('resolvido');
                     $alerta->setDataFim(date('Y-m-d H:i:s'));
                     $this->HistoricoAlertasDAO->atualizar($alerta);
                     

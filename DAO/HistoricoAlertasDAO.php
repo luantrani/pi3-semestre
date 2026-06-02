@@ -29,21 +29,26 @@ class HistoricoAlertasDAO {
      */
     public function buscarAlertasAtivos() {
     try {
+        // O ORDER BY foi ajustado:
+        // 1. status ('pendente' antes de 'em_andamento')
+        // 2. data_hora_alerta ASC (o mais antigo primeiro)
         $sql = "SELECT h.*, s.corredor, s.lado, p.nome as produto_nome, c.nome as categoria_nome,
-                       u.nome as nome_responsavel
+                       u.nome as nome_responsavel,
+                       TIMESTAMPDIFF(MINUTE, h.data_hora_alerta, NOW()) as tempo_espera_minutos
                 FROM historico_alertas h
                 JOIN sensor s ON h.id_sensor = s.id
                 JOIN produtos p ON s.id_produto = p.id
                 JOIN categorias c ON p.id_categoria = c.id
                 LEFT JOIN usuarios u ON h.id_usuario_atendimento = u.id
                 WHERE h.status IN ('pendente', 'em_andamento') 
-                ORDER BY h.status DESC, h.data_hora_alerta DESC";
+                ORDER BY FIELD(h.status, 'pendente', 'em_andamento'), h.data_hora_alerta ASC";
 
         $stmt = $this->conexao->prepare($sql);
         $stmt->execute();
         
         $alertas = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            // O mapearAlerta agora deve receber esse novo campo 'tempo_espera_minutos'
             $alertas[] = $this->mapearAlerta($row);
         }
         return $alertas;
